@@ -1,0 +1,27 @@
+{
+  "name": "crack-story-architect",
+  "owner": {
+    "name": "CREE1116",
+    "url": "https://github.com/CREE1116"
+  },
+  "plugins": [
+    {
+      "name": "crack-story-architect",
+      "source": "./",
+      "displayName": "Crack Story Architect",
+      "description": "Design, compile, and audit production-grade Crack interactive story chats from story.md and characters.md into platform-limited prompts, keyword books, and image assets.",
+      "version": "1.0.1",
+      "license": "MIT",
+      "homepage": "https://github.com/CREE1116/crack-story-architect",
+      "repository": "https://github.com/CREE1116/crack-story-architect",
+      "keywords": [
+        "crack",
+        "story-chat",
+        "prompt-engineering",
+        "worldbuilding",
+        "novelai",
+        "korean"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 검사기·툴 문법 확인
+        run: python -m compileall -q scripts/checks tools/images
+
+      - name: 플러그인 매니페스트 검사
+        run: |
+          python - <<'PY'
+          import json, pathlib, re
+          plugin = json.load(open(".claude-plugin/plugin.json"))
+          market = json.load(open(".claude-plugin/marketplace.json"))
+          assert re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", plugin["name"]), plugin["name"]
+          names = [p["name"] for p in market["plugins"]]
+          assert plugin["name"] in names, f'{plugin["name"]} not in {names}'
+          # 단일 스킬 플러그인 규약: 루트 SKILL.md 가 스킬 본체다.
+          head = pathlib.Path("SKILL.md").read_text(encoding="utf-8").split("---")[1]
+          assert f'name: {plugin["name"]}' in head, "SKILL.md frontmatter name mismatch"
+          assert "description:" in head, "SKILL.md needs a description"
+          print("manifest ok:", plugin["name"], plugin["version"])
+          PY
+
+      - name: 예제 프로젝트 검증
+        run: ./scripts/validate.sh examples/apocalypse
+
+      - name: 템플릿은 컴파일 전 상태로 통과해야 한다
+        run: ./scripts/validate.sh templates/story-chat-template --allow-unbuilt
+
+      - name: 음성 대조 — 미정의 기호를 실제로 잡는지
+        run: |
+          sed 's/^# 출력 형식/ⓝ ⇒ 🦊\n\n# 출력 형식/' \
+            examples/apocalypse/build/integrated-prompt-safe.md > /tmp/negative.md
+          if python3 scripts/checks/check_symbols.py /tmp/negative.md; then
+            echo "검사기가 미정의 기호를 놓쳤다"; exit 1
+          fi
+          echo "음성 대조 통과"
+
+      - name: 음성 대조 — 키워드북 400자 초과를 잡는지
+        run: |
+          python3 - <<'PY'
+          import pathlib, subprocess, sys, shutil
+          proj = pathlib.Path("/tmp/kbneg")
+          if proj.exists(): shutil.rmtree(proj)
+          shutil.copytree("examples/apocalypse", proj)
+          book = proj / "build" / "keyword-book-safe.md"
+          t = book.read_text(encoding="utf-8")
+          book.write_text(t.replace("-문체 톤:", "-문체 톤: " + "가" * 420, 1), encoding="utf-8")
+          r = subprocess.run([sys.executable, "scripts/checks/check_keyword_book.py", str(proj)])
+          if r.returncode == 0:
+              print("검사기가 400자 초과를 놓쳤다"); sys.exit(1)
+          print("음성 대조 통과")
+          PY
+
+      - name: 음성 대조 — 원본 변경을 잡는지
+        run: |
+          printf '\n<!-- ci probe -->\n' >> examples/apocalypse/characters.md
+          if python3 scripts/checks/check_freshness.py examples/apocalypse; then
+            echo "원본 변경을 놓쳤다"; exit 1
+          fi
+          git checkout examples/apocalypse/characters.md
+          echo "신선도 음성 대조 통과"

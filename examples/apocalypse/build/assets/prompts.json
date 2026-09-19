@@ -1,0 +1,34 @@
+{
+  "version": "1.0",
+  "cdn": "https://red-ash-assets.pages.dev",
+  "characters": {
+    "seorin": {
+      "ko": "서린",
+      "seed": 771102,
+      "tags": "1girl, solo, burn scar on left collarbone, black hair, low ponytail, red eyes, tsurime, 168cm, slender athletic build, black tactical turtleneck, grey military jacket, sleeves rolled up, charcoal cargo pants, black combat boots, unit patch on left arm",
+      "uc": "loli, child, chibi, lowres, bad anatomy, bad hands, extra digits, worst quality, signature, watermark, blonde hair, short hair, dress, skirt, cleavage, cheerful"
+    },
+    "kuroha": {
+      "ko": "쿠로하",
+      "seed": 771203,
+      "tags": "1girl, solo, exposed cybernetic left arm, glowing blue joints, silver hair, short hair, undercut, grey eyes, half-closed eyes, 172cm, slender, black rider jacket, red inner shirt, dark jeans",
+      "uc": "loli, child, chibi, lowres, bad anatomy, bad hands, extra digits, worst quality, signature, watermark, long hair, black hair, military uniform, cheerful, blush"
+    }
+  },
+  "situations": {
+    "a01": "neutral expression, looking at viewer, upper body",
+    "a02": "guarded expression, narrowed eyes, arms crossed",
+    "a03": "combat stance, torn clothes, blood on cheek, disheveled hair",
+    "a04": "faint smile, relaxed posture, looking away",
+    "a05": "exhausted, sweat, heavy breathing, leaning against wall",
+    "a06": "night, dim lighting, quiet expression, seated"
+  },
+  "scenes": {
+    "sc01": "no humans, scenery, exterior, ruined apartment complex, overgrown playground, rusted swings, crows, grey sky",
+    "sc02": "no humans, scenery, exterior, ruined shopping district, broken shop windows, flickering neon signs, wet asphalt",
+    "sc03": "no humans, scenery, exterior, skyscraper ruins, stopped ferris wheel, glowing rift in the sky, heavy fog"
+  },
+  "backgrounds": {
+    "bg01": "no humans, scenery, interior, underground smuggling tunnel, flickering lights, cargo crates, pipes"
+  }
+}

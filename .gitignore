@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Root Build & Test artifacts only
+/dist/
+/build/
+*.skill
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Cloudflare & Deployment
+.wrangler/
+deploy/

@@ -1,0 +1,5 @@
+# tools/images/ 만 외부 패키지를 쓴다.
+# SKILL.md 와 references/ 만 쓸 거라면 아무것도 설치할 필요가 없다.
+Pillow>=10.0
+numpy>=1.24
+scipy>=1.11
