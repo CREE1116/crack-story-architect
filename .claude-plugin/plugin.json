@@ -1,8 +1,8 @@
 {
   "name": "crack-story-architect",
   "displayName": "Crack Story Architect",
-  "description": "Design, compile, and audit production-grade Crack interactive story chats from story.md and characters.md into platform-limited prompts, keyword books, and image assets.",
-  "version": "1.0.1",
+  "description": "Design, compile, and audit Crack story chats, image assets, and story onboarding sites with reusable templates.",
+  "version": "1.1.0",
   "author": {
     "name": "CREE1116"
   },

@@ -14,7 +14,7 @@
 | **`compose_scene.py`** | **배경 프롬프트 컴파일러** (5대 앵커 조립, 인물 유출 차단, scene-design.md 생성) | `python3 tools/images/compose_scene.py --parse-story story.md` |
 | **`crop_backgrounds.py`** | **배경 크롭·리사이즈 도구** (1024x400 규격화, 배지, WebP 변환, 순서 네이밍) | `python3 tools/images/crop_backgrounds.py --src 원본 --out scene` |
 | **`compose_character.py`** | 캐릭터 외형 태그 검증 & `characters.json` 컴파일러 | `python3 tools/images/compose_character.py --parse-md characters.md` |
-| **`deploy.py`** | WebP 일괄 압축, 에셋 무결성 검사, Cloudflare Pages 배포 | `python3 tools/images/deploy.py --convert-webp --root deploy/` |
+| **`deploy.py`** | WebP 변환, 에셋 검사, 웹 템플릿 생성, GitHub+jsDelivr 이미지 배포 | `python3 tools/images/deploy.py --convert-webp --root deploy/` |
 
 ---
 
@@ -197,3 +197,7 @@ black tactical turtleneck, military jacket, cargo pants, combat boots, katana on
 -배경 이미지: ![](https://CDN도메인/scene/배경코드.webp)
  (새로운 장소로 이동하거나 구역 진입 시 1회 출력)
 ```
+
+## 6. 호스팅·소개 사이트·배너로 이어가기
+
+[hosting-showcase-and-banner.md](hosting-showcase-and-banner.md)를 읽는다. `deploy.py --convert-webp`는 원본 파일을 삭제하므로 작업 사본에서만 실행한다. Cloudflare Pages 배포는 별도이며, 스캐폴드의 순번 이미지 경로와 등급 가정은 실제 프로젝트에 맞춰 수정해야 한다.

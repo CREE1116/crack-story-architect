@@ -16,3 +16,14 @@
 | `character-design.md` | 인물 시각 디자인 명세표 | — |
 | `scene-design.md` | 배경·장면 시각 디자인 명세표 | — |
 | `build-stamp.json` | 컴파일 시점 원본 해시 (`check_freshness.py --stamp`가 생성) | — |
+
+## 소개 사이트 제작 시 추가 산출물
+
+[호스팅·소개 사이트·배너 지침](../references/hosting-showcase-and-banner.md)을 따른다. 아래 문서는 해당 작업을 요청받았을 때만 만든다.
+
+| 파일 | 용도 |
+|---|---|
+| `showcase-brief.md` | [설계 양식](showcase-design-template.md): 공개 정보 장부, 기록자·시점·권한, 사이트 동선·문구, 배너 |
+| `release-check.md` | 실제 URL·공개 수량·화면 및 링크 검증·미확인 사항 |
+
+웹 파일은 프로젝트 루트의 `site/`에, 원본은 `image-originals/`에 둔다. `build/` 바로 아래에 사이트 파일을 추가하지 않는다.

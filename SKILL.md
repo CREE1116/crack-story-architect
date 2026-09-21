@@ -1,6 +1,6 @@
 ---
 name: crack-story-architect
-description: Design, compile, or audit production-grade Crack interactive story chats from story.md and characters.md into platform-limited prompts and keyword books. Use for worldbuilding, psychologically generative characters, player agency, pacing, combat loops, adult boundaries, prompt compression, cinematic openings, and showcase production.
+description: Design, compile, or audit production-grade Crack interactive story chats from story.md and characters.md into platform-limited prompts and keyword books. Use for worldbuilding, psychologically generative characters, player agency, pacing, combat loops, adult boundaries, prompt compression, cinematic openings, and Crack showcase sites, image hosting, banners, and onboarding descriptions.
 ---
 
 # 크랙 스토리챗 아키텍트 (Crack Story Architect)
@@ -56,9 +56,9 @@ description: Design, compile, or audit production-grade Crack interactive story 
 
 ---
 
-## 🗺️ 8대 핵심 모듈 라우팅 맵
+## 🗺️ 핵심 모듈 라우팅 맵
 
-작업하려는 단계에 맞춰 해당 단일 모듈만 열어 작업한다. 링크는 스킬 기준 디렉터리(`${CLAUDE_PLUGIN_ROOT}`) 안의 경로다. 여러 문서를 오갈 필요 없이 각 모듈 안에서 원리·템플릿·체크리스트가 완결된다.
+작업하려는 단계의 모듈을 열고, 연결된 제작·배포가 필요할 때 관련 모듈을 추가로 읽는다. 링크는 스킬 기준 디렉터리(`${CLAUDE_PLUGIN_ROOT}`) 안의 경로다. 여러 문서를 오갈 필요 없이 각 모듈 안에서 원리·템플릿·체크리스트가 완결된다.
 
 | 단계 | 작업 내용 | 열람할 모듈 | 모듈에 담긴 핵심 지식 |
 |:---:|---|---|---|
@@ -69,6 +69,8 @@ description: Design, compile, or audit production-grade Crack interactive story 
 | **Phase 2** | **다중 시작 세트 / 프롤로그 / 오프닝** | [openings-and-start-sets.md](references/openings-and-start-sets.md) | 다중 시작 세트(2~3개 루트) 표준 규약, 7단 줌인 프롤로그, 4단 핫스타트 오프닝, 세트별 추천 답변 3종 결속 |
 | **Phase 3** | **크랙 파생 에셋 / 쇼케이스 / 플레이 팁** | [derived-assets-and-showcase.md](references/derived-assets-and-showcase.md) | `build/assets/` 7대 산출물 규약, 상세설명 3대 블록(마크다운), 고정 댓글 4대 블록(텍스트), 30자 후크, 4대 플레이 팁 치환 |
 | **Phase 3** | **단부루 태그 위키 / 캐릭터·배경 CG** | [image-prompt-and-assets.md](references/image-prompt-and-assets.md) | `search_tag.py`(태그 검색), `compose_scene.py`(배경 컴파일), `crop_backgrounds.py`(1024x400 크롭), 태그 가감(+a/-소거) 원칙, 캐릭터·배경 이미지 프롬프트 및 CDN 규약 |
+| **Phase 3** | **작품 연장형 사이트 설계 / 공개 정보 경계** | [immersive-showcase-design.md](references/immersive-showcase-design.md) | 네 참고 사이트 기반 프리셋, 기록자·시점·열람 권한, 관측·소문·비밀 분리, 사이트에서 플레이로 이어지는 설계 양식, HTML/CSS 템플릿 3종 |
+| **Phase 3** | **이미지 호스팅 / 소개 사이트 / 배너** | [hosting-showcase-and-banner.md](references/hosting-showcase-and-banner.md) | 공개 파일 계약, 기존 배포 도구 한계, 반응형 소개·갤러리, 배너 제목·구도, 배포 및 링크 검증 |
 | **Common** | **플랫폼 규격 / 글자 수 / 단축어 / 검증** | [platform-spec-and-lint.md](references/platform-spec-and-lint.md) | 7K/1K/400자 규격, UTF-16 측정법, 비가시적 조향 주석, 단축어 6대 표준 레시피, 빌드 체크리스트 |
 
 ---
@@ -152,8 +154,9 @@ python3 "$S"/scripts/checks/check_freshness.py <project> --stamp   # 컴파일 �
 | `build/` 산출물 규약 | `$S/templates/build-dir-contract.md` |
 | `build/assets/` 규약 | `$S/templates/build-assets-contract.md` |
 | **완성된 참조 프로젝트** | `$S/examples/apocalypse/` — 정본부터 통합 프롬프트·키워드북·파생 에셋까지 전부 채워져 있고 CI가 검증한다 |
+| 바로 사용하는 사이트 템플릿 | `$S/templates/showcase-sites/` — 전술 단말기·길드 게시판·기록관 HTML/CSS 및 디자인 지침 |
 | 이미지 툴체인 | `$S/tools/images/` |
-| 8대 레퍼런스 | `$S/references/` |
+| 레퍼런스 | `$S/references/` |
 
 새 프로젝트는 빈 양식을 유저 작업 디렉터리로 복사해서 시작한다:
 

@@ -20,6 +20,19 @@
 
 ---
 
+## 스토리 온보딩 사이트
+
+작품 안의 공개 기록처럼 읽히는 [HTML/CSS 템플릿 3종](templates/showcase-sites/README.md)을 제공합니다.
+
+- [전술 단말기](templates/showcase-sites/terminal/index.html): 입소 안내·구역 동선·현장 인원.
+- [길드 게시판](templates/showcase-sites/guild/index.html): 접수원의 기록·공개 의뢰서·길드 사람들.
+- [기록관](templates/showcase-sites/archive/index.html): 근무 인계·시작 위치·당직 인원.
+
+각 폴더를 복사하고 예시 설정을 작품 정본으로 교체하면 됩니다. 홍보 카피나 숨은 설정 대신 첫 진입에 필요한 정보만 담습니다.
+[공개 범위와 설계 지침](references/immersive-showcase-design.md), [설계 양식](templates/showcase-design-template.md), [호스팅·배너 지침](references/hosting-showcase-and-banner.md)을 함께 제공합니다.
+
+---
+
 ## 설치
 
 ### 방법 1. Claude Code 플러그인 (권장)

@@ -73,6 +73,8 @@ python3 tools/images/crop_backgrounds.py --src image-배경_원본 --out deploy/
 ---
 
 ## 1. 표준 디렉터리 스캐폴딩 및 웹 쇼케이스 생성
+
+```bash
 python3 deploy.py --scaffold --config <작품>/build/assets/prompts.json --root ~/내이미지폴더
 ```
 
@@ -100,7 +102,7 @@ python3 deploy.py --scaffold --config <작품>/build/assets/prompts.json --root 
 python3 deploy.py --convert-webp --root ~/내이미지폴더
 ```
 
-* 원본 이미지를 유지하면서 동일한 위치에 초경량 `.webp` 파일을 자동 생성합니다.
+* 변환에 성공한 PNG/JPEG 원본을 삭제하고 같은 이름의 WebP를 덮어쓸 수 있습니다. 원본을 별도 보관하고 작업 사본에서 실행합니다.
 * 크랙 런타임의 이미지 로딩 속도를 극대화하고 데이터 전송량을 대폭 절감합니다.
 
 ---
@@ -111,11 +113,13 @@ python3 deploy.py --convert-webp --root ~/내이미지폴더
 python3 deploy.py --check --root ~/내이미지폴더
 ```
 
-* 인물별 `a01.webp` ~ `a06.webp` (Safe/일반) 및 `s01.webp` ~ `s06.webp` (NSFW/19+) 에셋 존재 여부를 검사합니다.
+* `prompts.json`의 실제 인물·상황 키를 기준으로 검사합니다. 접두사만으로 등급을 정하지 않습니다. 일부 누락은 실패로 처리하지 않으므로 공개 목록을 별도로 대조합니다.
 
 ---
 
 ## 4. Cloudflare Pages 호스팅 배포
+
+`deploy.py` 기본 실행은 GitHub+jsDelivr 이미지 배포이며 Pages 사이트 배포가 아닙니다. 웹 템플릿에는 순번 경로와 샘플 가정이 남으므로 실제 인물 슬러그에 맞춰 수정해야 합니다. 제작·배포 절차와 도구 한계는 [호스팅·소개 사이트·배너 지침](../../references/hosting-showcase-and-banner.md)을 따릅니다. 아래는 개념적인 흐름이며 실제 배포 시 공식 문서에서 현재 절차를 확인합니다.
 
 1. Cloudflare Dashboard ➡️ **Workers & Pages** ➡️ **Create application** ➡️ **Pages** 선택
 2. GitHub 저장소 연동 또는 직접 `~/내이미지폴더` 업로드
