@@ -137,6 +137,7 @@ python3 "$S"/scripts/checks/check_freshness.py <project> --stamp   # 컴파일 �
 | `check_keyword_book.py` | 항목당 UTF-16 400자, 키워드 1~5개, `.` 상시 트리거 핵, 단축어 슬래시·한도 |
 | `check_symbols.py` | 정의 없이 쓰인 기호·이모지, 범례보다 먼저 등장한 기호 |
 | `check_image_assets.py` | 명부↔이미지 슬러그 불일치, 시드 중복, 선두 태그 충돌 |
+| `check_showcase.py` | 공개정보 장부 필수값, 역할·시작 장소·상황·첫 행동, 사이트↔정본/시작세트 신선도 |
 | `check_naming.py` | 폐기된 `char.` / `canon.` 점 표기 잔존 |
 
 > [!IMPORTANT]

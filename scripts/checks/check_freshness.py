@@ -33,10 +33,10 @@ STAMP = Path("build") / "assets" / "build-stamp.json"
 
 # 바뀐 섹션 제목 → 다시 봐야 할 산출물. 순서대로 처음 맞는 것을 쓴다.
 ROUTES: tuple[tuple[str, str], ...] = (
-    (r"appearance|외형|식별", "build/assets/image-prompts.md · prompts.json (외형 앵커의 단일 출처)"),
-    (r"prologue|프롤로그|opening|오프닝|opening material|첫 상황|시작", "build/prologue.md · build/start-prompt.md"),
-    (r"^char\.|인물|character", "통합본 현장 인물 씨앗 · 해당 키워드북 항목 · 이미지 프롬프트"),
-    (r"등급|tier|위협|threat|범람체|성장|경제|세계|world|hard rule|법칙", "통합본 세계 법칙 · 관련 키워드북 항목"),
+    (r"appearance|외형|식별", "build/assets/image-prompts.md · prompts.json · 공개 인물 카드/갤러리(사용 시)"),
+    (r"prologue|프롤로그|opening|오프닝|opening material|첫 상황|시작", "build/prologue.md · build/start-prompt.md · showcase-brief.md/site"),
+    (r"^char\.|인물|character", "통합본 현장 인물 씨앗 · 해당 키워드북 항목 · 이미지 프롬프트 · 공개 인물 카드(사용 시)"),
+    (r"core|player's place|플레이어|등급|tier|위협|threat|범람체|성장|경제|세계|world|hard rule|법칙", "통합본 세계 법칙 · 관련 키워드북 항목 · 공개 정보 장부/site(공개 범위가 바뀐 경우)"),
     (r"관계|relationship|이벤트|event|진행|arc", "통합본 진행·관계"),
     (r"길드|faction|조직|협회", "통합본 세력 요약 · 해당 키워드북 항목"),
     (r"kb\.|키워드|lore candidate", "build/keyword-book.md"),

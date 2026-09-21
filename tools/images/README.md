@@ -72,7 +72,7 @@ python3 tools/images/crop_backgrounds.py --src image-배경_원본 --out deploy/
 
 ---
 
-## 1. 표준 디렉터리 스캐폴딩 및 웹 쇼케이스 생성
+## 1. 표준 디렉터리 스캐폴딩
 
 ```bash
 python3 deploy.py --scaffold --config <작품>/build/assets/prompts.json --root ~/내이미지폴더
@@ -81,15 +81,20 @@ python3 deploy.py --scaffold --config <작품>/build/assets/prompts.json --root 
 실행 시 다음 구조가 자동으로 준비됩니다:
 ```
 ~/내이미지폴더/
-  index.html            인터랙티브 웹 쇼케이스 갤러리 (4대 탭, 모달 인스펙터, 19+ 토글)
-  styles.css            반응형 다크 테마 및 애니메이션 스타일시트
-  app.js                에셋 데이터 바인딩 및 실시간 검색/필터 스크립트
   _배치표.md            전체 에셋 체크리스트
-  01/                   인물 01 디렉터리 (README.md 가이드 포함)
-  02/                   인물 02 디렉터리
+  <인물슬러그>/          인물 디렉터리 (README.md 가이드 포함)
   scene/                배경 및 장소 디렉터리
   mob/                  몬스터 및 위협 디렉터리
   event/                특수 이벤트 CG 디렉터리
+```
+
+제작용 범용 에셋 브라우저가 필요할 때만 `--asset-gallery`를 함께 붙입니다. 이 갤러리는
+`prompts.json`에 있는 자산을 탐색하기 위한 도구이며, 작품 온보딩 사이트의 공개 범위를
+결정하지 않습니다. 공개 소개 사이트는 `build/assets/showcase-brief.md`의 장부에서 허용한
+정보만으로 별도 제작합니다.
+
+```bash
+python3 deploy.py --scaffold --asset-gallery --config <작품>/build/assets/prompts.json --root ~/내이미지폴더
 ```
 
 ---
@@ -102,8 +107,8 @@ python3 deploy.py --scaffold --config <작품>/build/assets/prompts.json --root 
 python3 deploy.py --convert-webp --root ~/내이미지폴더
 ```
 
-* 변환에 성공한 PNG/JPEG 원본을 삭제하고 같은 이름의 WebP를 덮어쓸 수 있습니다. 원본을 별도 보관하고 작업 사본에서 실행합니다.
-* 크랙 런타임의 이미지 로딩 속도를 극대화하고 데이터 전송량을 대폭 절감합니다.
+* PNG/JPEG 원본은 보존합니다. 같은 이름의 WebP가 이미 있거나 출력 경로가 충돌하면 중단합니다.
+* 압축 결과의 용량과 시각 품질은 직접 확인합니다. 고정된 절감률이나 로딩 속도를 가정하지 않습니다.
 
 ---
 
@@ -119,7 +124,7 @@ python3 deploy.py --check --root ~/내이미지폴더
 
 ## 4. Cloudflare Pages 호스팅 배포
 
-`deploy.py` 기본 실행은 GitHub+jsDelivr 이미지 배포이며 Pages 사이트 배포가 아닙니다. 웹 템플릿에는 순번 경로와 샘플 가정이 남으므로 실제 인물 슬러그에 맞춰 수정해야 합니다. 제작·배포 절차와 도구 한계는 [호스팅·소개 사이트·배너 지침](../../references/hosting-showcase-and-banner.md)을 따릅니다. 아래는 개념적인 흐름이며 실제 배포 시 공식 문서에서 현재 절차를 확인합니다.
+`deploy.py` 기본 실행은 GitHub+jsDelivr 이미지 배포이며 Pages 사이트 배포가 아닙니다. `--asset-gallery`는 제작용 범용 갤러리일 뿐 온보딩 사이트가 아닙니다. 작품 소개 사이트 제작·배포는 [호스팅·소개 사이트·배너 지침](../../references/hosting-showcase-and-banner.md)을 따릅니다. 아래는 개념적인 흐름이며 실제 배포 시 공식 문서에서 현재 절차를 확인합니다.
 
 1. Cloudflare Dashboard ➡️ **Workers & Pages** ➡️ **Create application** ➡️ **Pages** 선택
 2. GitHub 저장소 연동 또는 직접 `~/내이미지폴더` 업로드
@@ -129,7 +134,7 @@ python3 deploy.py --check --root ~/내이미지폴더
    ```
 4. 크랙 프롬프트 내 호출:
    ```markdown
-   ![]({IMG}/01/a01.webp)
+   ![]({IMG}/<인물슬러그>/<상황슬러그>.webp)
    ```
 
 

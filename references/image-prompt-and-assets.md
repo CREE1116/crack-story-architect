@@ -192,7 +192,7 @@ black tactical turtleneck, military jacket, cargo pants, combat boots, katana on
 
 ```markdown
 # 이미지 출력 규약
--인물 이미지: ![](https://CDN도메인/인물번호/코드.webp)
+-인물 이미지: ![](https://CDN도메인/인물슬러그/상황슬러그.webp)
  (매 응답마다 개입하는 인물의 첫 대사/행동 시 및 감정/상태 변경 시 必출력)
 -배경 이미지: ![](https://CDN도메인/scene/배경코드.webp)
  (새로운 장소로 이동하거나 구역 진입 시 1회 출력)
@@ -200,4 +200,4 @@ black tactical turtleneck, military jacket, cargo pants, combat boots, katana on
 
 ## 6. 호스팅·소개 사이트·배너로 이어가기
 
-[hosting-showcase-and-banner.md](hosting-showcase-and-banner.md)를 읽는다. `deploy.py --convert-webp`는 원본 파일을 삭제하므로 작업 사본에서만 실행한다. Cloudflare Pages 배포는 별도이며, 스캐폴드의 순번 이미지 경로와 등급 가정은 실제 프로젝트에 맞춰 수정해야 한다.
+[hosting-showcase-and-banner.md](hosting-showcase-and-banner.md)를 읽는다. `deploy.py --convert-webp`는 PNG/JPEG 원본을 보존하고 기존 WebP와 충돌하면 중단한다. Cloudflare Pages 배포는 별도이며, `--scaffold --asset-gallery`로 만드는 범용 갤러리는 공개 온보딩 사이트가 아니다.

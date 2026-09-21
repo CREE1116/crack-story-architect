@@ -24,6 +24,7 @@
 | 파일 | 용도 |
 |---|---|
 | `showcase-brief.md` | [설계 양식](showcase-design-template.md): 공개 정보 장부, 기록자·시점·권한, 사이트 동선·문구, 배너 |
+| `showcase-stamp.json` | 공개 범위 검토 시점의 정본·시작 세트·brief 해시 (`check_showcase.py --stamp` 생성) |
 | `release-check.md` | 실제 URL·공개 수량·화면 및 링크 검증·미확인 사항 |
 
 웹 파일은 프로젝트 루트의 `site/`에, 원본은 `image-originals/`에 둔다. `build/` 바로 아래에 사이트 파일을 추가하지 않는다.

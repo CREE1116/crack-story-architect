@@ -7,14 +7,16 @@
 
 기대하는 폴더 구조:
 
-    <루트>/<인물>/<상황>.png
-    <루트>/scene/<장면>.png
-    <루트>/bg/<배경>.png
-    <루트>/mob/<위협>.png
+    <루트>/<인물>/<상황>.webp
+    <루트>/scene/<장면>.webp
+    <루트>/bg/<배경>.webp
+    <루트>/mob/<위협>.webp
 
 사용:
     python deploy.py --check                 검사만, 업로드 없음
     python deploy.py --dry-run               할 일만 출력
+    python deploy.py --scaffold              이미지 폴더·배치표 생성
+    python deploy.py --scaffold --asset-gallery  범용 에셋 갤러리도 생성
     python deploy.py --create                저장소가 없으면 만들고 배포
     python deploy.py                         배포
     python deploy.py --tag v2                태그를 찍어 캐시 지연 없이 배포
@@ -31,6 +33,8 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
+import re
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -75,20 +79,25 @@ def convert_to_webp(root: Path, quality: int = 85) -> int:
     try:
         from PIL import Image
     except ImportError:
-        print("  [경고] Pillow(PIL) 모듈이 없어 자동 webp 변환을 건너뜁니다. (pip install Pillow)")
-        return 0
+        raise ValueError("Pillow가 필요합니다: pip install Pillow")
 
-    for p in sorted(root.rglob("*")):
+    sources = [p for p in sorted(root.rglob("*")) if p.is_file() and p.suffix.lower() in {".png", ".jpg", ".jpeg"}]
+    targets = [p.with_suffix(".webp") for p in sources]
+    if len(targets) != len(set(targets)) or any(p.exists() for p in targets):
+        raise ValueError("WebP 출력 충돌: 기존 파일을 보존합니다. 별도 출력 폴더를 사용하세요.")
+    for p in sources:
         if p.is_file() and p.suffix.lower() in {".png", ".jpg", ".jpeg"}:
             webp_path = p.with_suffix(".webp")
             try:
                 with Image.open(p) as img:
-                    img.save(webp_path, "WEBP", quality=quality)
-                p.unlink()
+                    with webp_path.open("xb") as output:
+                        img.save(output, "WEBP", quality=quality)
                 count += 1
                 print(f"  [변환 완료] {p.name} → {webp_path.name}")
             except Exception as e:
-                print(f"  [변환 실패] {p}: {e}")
+                if webp_path.exists():
+                    webp_path.unlink()
+                raise ValueError(f"변환 실패: {p}: {e}") from e
     if count:
         print(f"▸ 총 {count}개 이미지를 WebP로 일괄 변환했습니다.")
     return count
@@ -102,7 +111,12 @@ def run(cmd: list[str], cwd: Path | None = None, check: bool = True) -> str:
 
 
 def load_config(path: Path) -> dict:
-    return json.loads(path.read_text(encoding="utf-8"))
+    cfg = json.loads(path.read_text(encoding="utf-8"))
+    for axis in ("characters", "situations", *FIXED_AXES):
+        for key in cfg.get(axis, {}):
+            if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", key):
+                raise ValueError(f"잘못된 경로 키: {axis}/{key}")
+    return cfg
 
 
 def expected(cfg: dict) -> dict[str, set[str]]:
@@ -175,21 +189,29 @@ def audit(cfg: dict, root: Path) -> tuple[bool, set[str]]:
 
 
 def label(entry: dict | None, slug: str) -> str:
-    return (entry or {}).get("ko") or slug
+    return entry.get("ko") or slug if isinstance(entry, dict) else slug
 
 
 def size_of(entry: dict | None) -> str:
-    size = (entry or {}).get("size")
+    size = entry.get("size") if isinstance(entry, dict) else None
     return f"{size[0]}×{size[1]}" if isinstance(size, list) and len(size) == 2 else "—"
 
 
-def scaffold(cfg: dict, root: Path) -> int:
+def scaffold(cfg: dict, root: Path, asset_gallery: bool = False) -> int:
     """축 목록대로 빈 폴더와 배치표를 만든다.
 
     축은 컴파일 시점에 이미 닫혀 있으므로, 어떤 파일이 어디에 들어가야 하는지는
     그림을 그리기 전에 전부 정해져 있다. 사람이 폴더 이름을 손으로 만들면
     반드시 오타가 나고, 오타는 조용한 깨진 링크가 된다.
     """
+    # Never overwrite a previously edited showcase or placement table.
+    protected = [root / "_배치표.md"]
+    if asset_gallery:
+        protected += [root / name for name in ("index.html", "styles.css", "app.js")]
+    protected += [root / slug / "README.md" for slug in cfg.get("characters", {})]
+    protected += [root / folder / "README.md" for key, folder in FIXED_AXES.items() if cfg.get(key)]
+    if any(path.exists() for path in protected):
+        raise ValueError("스캐폴드 출력이 이미 있습니다. 새 폴더를 사용하세요.")
     people = cfg.get("characters", {})
     situations = cfg.get("situations", {})
     found = scan(root) if root.is_dir() else set()
@@ -248,31 +270,37 @@ def scaffold(cfg: dict, root: Path) -> int:
 
     (root / "_배치표.md").write_text("\n".join(lines), encoding="utf-8")
 
-    # Cloudflare Pages 쇼케이스 웹 템플릿 (index.html, styles.css, app.js) 복사 및 주입
+    # 범용 에셋 갤러리는 명시적으로 요청한 경우에만 만든다.
+    # prompts.json의 존재는 공개 허가가 아니며 작품 온보딩 사이트와 별개다.
     template_dir = HERE / "web_template"
-    if (template_dir / "styles.css").is_file():
+    if asset_gallery and (template_dir / "styles.css").is_file():
         shutil.copy2(template_dir / "styles.css", root / "styles.css")
-    if (template_dir / "index.html").is_file():
+    if asset_gallery and (template_dir / "index.html").is_file():
         shutil.copy2(template_dir / "index.html", root / "index.html")
 
     # 4대 카테고리(인물, 장소, 몬스터, 이벤트) 데이터 추출
-    situation_keys = list(situations.keys()) if situations else ["a01", "a02", "a03", "s01"]
+    situation_keys = list(situations)
     js_characters = []
     for idx, (slug, entry) in enumerate(people.items(), 1):
-        num_id = f"{idx:02d}"
+        entry = entry if isinstance(entry, dict) else {}
+        variants = [code for code in situation_keys if f"{slug}/{code}{EXT}" in found]
+        if not variants:
+            continue
         js_characters.append({
-            "id": num_id,
+            "id": slug,
             "name": label(entry, slug),
-            "group": "student" if idx <= 15 else "faculty",
+            "group": entry.get("group", ""),
             "type": entry.get("type", "주요 인물"),
             "role": entry.get("role", slug),
             "quote": entry.get("quote", ""),
-            "img": f"/{num_id}/a01{EXT}",
-            "variants": situation_keys
+            "img": f"./{slug}/{variants[0]}{EXT}" if variants else "",
+            "variants": variants
         })
 
     js_scenes = []
     for s_slug, s_val in cfg.get("scenes", {}).items():
+        if f"scene/{s_slug}{EXT}" not in found:
+            continue
         js_scenes.append({
             "id": f"scene/{s_slug}",
             "name": label(s_val, s_slug),
@@ -284,6 +312,8 @@ def scaffold(cfg: dict, root: Path) -> int:
 
     js_mobs = []
     for m_slug, m_val in cfg.get("monsters", {}).items():
+        if f"mob/{m_slug}{EXT}" not in found:
+            continue
         js_mobs.append({
             "id": f"mob/{m_slug}",
             "name": label(m_val, m_slug),
@@ -295,7 +325,9 @@ def scaffold(cfg: dict, root: Path) -> int:
 
     js_events = []
     for e_slug, e_val in cfg.get("events", {}).items():
-        is_nsfw = e_slug.startswith("s")
+        if f"event/{e_slug}{EXT}" not in found:
+            continue
+        is_nsfw = isinstance(e_val, dict) and e_val.get("rating") == "adult"
         js_events.append({
             "id": f"event/{e_slug}",
             "name": label(e_val, e_slug),
@@ -313,16 +345,18 @@ def scaffold(cfg: dict, root: Path) -> int:
         f"window.MOBS_DATA = {json.dumps(js_mobs, ensure_ascii=False, indent=2)};\n"
         f"window.EVENTS_DATA = {json.dumps(js_events, ensure_ascii=False, indent=2)};\n\n"
     )
-    if (template_dir / "app.js").is_file():
+    if asset_gallery and (template_dir / "app.js").is_file():
         app_js_code += (template_dir / "app.js").read_text(encoding="utf-8")
-    (root / "app.js").write_text(app_js_code, encoding="utf-8")
+    if asset_gallery:
+        (root / "app.js").write_text(app_js_code, encoding="utf-8")
 
     total = len(people) * len(situations) + sum(len(cfg.get(k, {})) for k in FIXED_AXES)
     print(f"폴더 {made}개, 자리 {total}개를 준비했습니다: {root}")
     print(f"  배치표: {root / '_배치표.md'}")
-    print(f"  웹 쇼케이스: {root / 'index.html'}, {root / 'styles.css'}, {root / 'app.js'}")
+    if asset_gallery:
+        print(f"  에셋 갤러리: {root / 'index.html'}, {root / 'styles.css'}, {root / 'app.js'}")
     print(f"  이미 채워진 자리: {len(found)}개")
-    print("\n  WebP 이미지를 넣은 뒤 Cloudflare Pages에 배포하거나 `python deploy.py --check` 로 확인하세요.")
+    print("\n  WebP 이미지를 넣은 뒤 `python deploy.py --check` 로 확인하세요.")
     return 0
 
 
@@ -334,64 +368,54 @@ def publish(cfg: dict, root: Path, files: set[str], args) -> str:
     repo = args.repo or cfg.get("deploy", {}).get("repo")
     if not repo or "/" not in repo:
         sys.exit("대상 저장소를 지정하세요: --repo owner/name (또는 prompts.json의 deploy.repo)")
-    if not shutil.which("gh"):
-        sys.exit("gh가 필요합니다: brew install gh")
-
-    work = Path.cwd() / ".deploy-work"
-    if work.exists():
-        shutil.rmtree(work)
-
-    exists = subprocess.run(["gh", "repo", "view", repo],
-                            capture_output=True, text=True).returncode == 0
-    if not exists:
-        if not args.create:
-            sys.exit(f"저장소가 없습니다: {repo}\n  --create 를 주면 공개 저장소로 만듭니다.")
-        print(f"▸ 저장소 생성 {repo} (public — jsDelivr는 공개 저장소만 서빙합니다)")
-        if not args.dry_run:
-            run(["gh", "repo", "create", repo, "--public",
-                 "--description", "크랙 스토리챗 이미지 자산"])
-
-    print(f"▸ 파일 {len(files)}개 준비")
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
+        raise ValueError("잘못된 저장소 이름")
+    branch = cfg.get("deploy", {}).get("ref", "main")
+    for ref in (branch, args.tag):
+        if ref and (ref.startswith("-") or ".." in ref or not re.fullmatch(r"[A-Za-z0-9_./-]+", ref)):
+            raise ValueError("잘못된 브랜치/태그 이름")
+    for rel in files:
+        path = Path(rel)
+        if path.is_absolute() or ".." in path.parts or not (root / path).resolve().is_relative_to(root.resolve()):
+            raise ValueError(f"루트 밖의 파일: {rel}")
     if args.dry_run:
-        print("  dry-run 이므로 아무것도 올리지 않습니다.")
-        return base_url(repo, args.tag or cfg.get("deploy", {}).get("ref", "main"))
-
-    if exists:
-        run(["gh", "repo", "clone", repo, str(work), "--", "--depth", "1"])
-        for stale in work.rglob("*"):
-            if stale.is_file() and stale.suffix.lower() == EXT:
-                stale.unlink()
-    else:
-        work.mkdir(parents=True)
-        run(["git", "init", "-q", "-b", "main"], cwd=work)
-        run(["git", "remote", "add", "origin", f"https://github.com/{repo}.git"], cwd=work)
-
-    for rel in sorted(files):
-        dest = work / rel
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(root / rel, dest)
-    (work / "README.md").write_text(
-        "# 이미지 자산\n\n크랙 스토리챗용. `deploy.py`가 생성하므로 직접 수정하지 마세요.\n"
-        f"\n주소 형태: `{base_url(repo, 'main')}/<인물>/<상황>.png`\n",
-        encoding="utf-8")
-
-    run(["git", "add", "-A"], cwd=work)
-    if run(["git", "status", "--porcelain"], cwd=work):
-        run(["git", "commit", "-qm", f"이미지 {len(files)}장 배포"], cwd=work)
-        run(["git", "push", "-q", "-u", "origin", "main", "--force"], cwd=work)
-        print("▸ 푸시 완료")
-    else:
-        print("▸ 변경 없음")
-
-    ref = cfg.get("deploy", {}).get("ref", "main")
-    if args.tag:
-        run(["git", "tag", "-f", args.tag], cwd=work)
-        run(["git", "push", "-q", "-f", "origin", args.tag], cwd=work)
-        ref = args.tag
-        print(f"▸ 태그 {args.tag} 푸시")
-
-    shutil.rmtree(work, ignore_errors=True)
-    return base_url(repo, ref)
+        print(f"로컬 배포 계획: {repo}, 브랜치 {branch}, 파일 {len(files)}개 (원격 조회 없음)")
+        return base_url(repo, args.tag or branch)
+    if not shutil.which("gh"):
+        sys.exit("gh가 필요합니다")
+    exists = subprocess.run(["gh", "repo", "view", repo], capture_output=True, text=True).returncode == 0
+    if not exists and not args.create:
+        sys.exit(f"저장소를 확인할 수 없습니다: {repo}")
+    if not exists:
+        run(["gh", "repo", "create", repo, "--public", "--description", "크랙 스토리챗 이미지 자산"])
+    with tempfile.TemporaryDirectory(prefix="crack-deploy-") as temp:
+        work = Path(temp) / "repo"
+        if exists:
+            run(["gh", "repo", "clone", repo, str(work), "--", "--branch", branch])
+        else:
+            work.mkdir()
+            run(["git", "init", "-q", "-b", branch], cwd=work)
+            run(["git", "remote", "add", "origin", f"https://github.com/{repo}.git"], cwd=work)
+        if args.tag and run(["git", "tag", "--list", args.tag], cwd=work):
+            raise ValueError(f"태그가 이미 있습니다: {args.tag}. 새 태그를 사용하세요.")
+        # Only update selected images. Preserve unrelated files and prior URLs.
+        for rel in sorted(files):
+            dest = work / rel
+            if not dest.resolve().is_relative_to(work.resolve()) or dest.is_symlink():
+                raise ValueError(f"저장소 밖의 대상: {rel}")
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(root / rel, dest)
+        run(["git", "add", "--", *sorted(files)], cwd=work)
+        changed = run(["git", "status", "--porcelain"], cwd=work)
+        if changed:
+            run(["git", "commit", "-qm", f"이미지 {len(files)}장 배포"], cwd=work)
+        if args.tag:
+            run(["git", "tag", args.tag], cwd=work)
+            # Atomic push prevents partial branch/tag publication on a conflict.
+            run(["git", "push", "--atomic", "origin", f"HEAD:refs/heads/{branch}", f"refs/tags/{args.tag}"], cwd=work)
+        elif changed:
+            run(["git", "push", "origin", f"HEAD:refs/heads/{branch}"], cwd=work)
+    return base_url(repo, args.tag or branch)
 
 
 def verify(url_base: str, files: set[str]) -> bool:
@@ -424,7 +448,9 @@ def main() -> int:
     ap.add_argument("--create", action="store_true", help="저장소가 없으면 공개로 생성")
     ap.add_argument("--tag", help="이 태그를 찍고 주소에 사용 (캐시 지연 없음)")
     ap.add_argument("--scaffold", action="store_true",
-                    help="축 목록대로 빈 폴더와 배치표, 웹 쇼케이스 템플릿을 만든다")
+                    help="축 목록대로 빈 폴더와 이미지 배치표를 만든다")
+    ap.add_argument("--asset-gallery", action="store_true",
+                    help="--scaffold와 함께 범용 에셋 갤러리도 만든다 (온보딩 사이트 아님)")
     ap.add_argument("--convert-webp", action="store_true",
                     help="폴더 내의 PNG/JPG 이미지를 WebP로 일괄 변환한다")
     ap.add_argument("--check", action="store_true", help="검사만 하고 종료")
@@ -442,15 +468,17 @@ def main() -> int:
         convert_to_webp(root)
         return 0
 
+    if args.asset_gallery and not args.scaffold:
+        raise ValueError("--asset-gallery는 --scaffold와 함께 사용하세요.")
+
     if args.scaffold:
         root.mkdir(parents=True, exist_ok=True)
-        return scaffold(cfg, root)
+        return scaffold(cfg, root, asset_gallery=args.asset_gallery)
 
     if not root.is_dir():
         sys.exit(f"이미지 폴더가 없습니다: {root}\n  먼저 `python deploy.py --scaffold` 를 실행하세요.")
 
-    # 검사 전 자동 webp 변환 시도
-    convert_to_webp(root)
+    # Checks and dry-runs must never mutate image files.
 
     ok, files = audit(cfg, root)
     if not ok:
@@ -464,7 +492,7 @@ def main() -> int:
 
     print(f"\n## 통합 프롬프트에 넣을 값")
     print(f"  {{IMG}} = {url}")
-    print(f"\n  예: ![]({url}/ju-habin/normal.png)")
+    print(f"\n  예: ![]({url}/ju-habin/normal.webp)")
     print("\n  통합 프롬프트의 `{IMG}`를 위 주소로 치환하거나, 자리표시자를 그대로 두고")
     print("  크랙 UI에서 치환하세요. 축 목록은 프롬프트와 반드시 일치해야 합니다.")
 
@@ -480,4 +508,7 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    try:
+        raise SystemExit(main())
+    except (ValueError, OSError) as exc:
+        sys.exit(str(exc))
