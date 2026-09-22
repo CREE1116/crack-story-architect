@@ -72,6 +72,16 @@ python3 tools/images/crop_backgrounds.py --src image-배경_원본 --out deploy/
 
 ---
 
+## 0.4. 시네마틱 명함 (`name_card_cinematic.py`)
+
+배경이 있는 차분 컷을 확대해 오른쪽에 두고, 왼쪽 페이드 위에 소속·이름·영문 이름·이능을 조판한 1200x600 카드를 만듭니다. 작성 규칙은 `references/image-prompt-and-assets.md` ⑤를 따릅니다.
+
+```bash
+uv run tools/images/name_card_cinematic.py <작품>/img --meta cards.json --out <작품>/img/명함
+```
+
+---
+
 ## 1. 표준 디렉터리 스캐폴딩
 
 ```bash

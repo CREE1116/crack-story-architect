@@ -6,7 +6,7 @@
 
 ## 1. 이미지 제작·태깅·배경 전용 툴체인 (`tools/images/`)
 
-프로젝트 루트의 `tools/images/` 디렉터리에 이미지 제작 및 후처리를 자동화하는 5대 핵심 도구가 내장되어 있습니다.
+프로젝트 루트의 `tools/images/` 디렉터리에 이미지 제작 및 후처리를 자동화하는 핵심 도구가 내장되어 있습니다.
 
 | 도구명 | 핵심 기능 | 실행 예시 |
 |---|---|---|
@@ -15,6 +15,7 @@
 | **`crop_backgrounds.py`** | **배경 크롭·리사이즈 도구** (1024x400 규격화, 배지, WebP 변환, 순서 네이밍) | `python3 tools/images/crop_backgrounds.py --src 원본 --out scene` |
 | **`compose_character.py`** | 캐릭터 외형 태그 검증 & `characters.json` 컴파일러 | `python3 tools/images/compose_character.py --parse-md characters.md` |
 | **`deploy.py`** | WebP 변환, 에셋 검사, 웹 템플릿 생성, GitHub+jsDelivr 이미지 배포 | `python3 tools/images/deploy.py --convert-webp --root deploy/` |
+| **`name_card_cinematic.py`** | **시네마틱 명함** (배경 포함 차분 컷 + 소속·이름·영문 이름·이능 조판, 1200x600) | `uv run tools/images/name_card_cinematic.py img --meta cards.json --out img/명함` |
 
 ---
 
@@ -95,6 +96,31 @@ python3 tools/images/compose_character.py \
   --output-json <작품>/build/assets/characters.json \
   --output-md <작품>/build/assets/character-design.md
 ```
+
+---
+
+### ⑤ 시네마틱 명함 (`name_card_cinematic.py`)
+캐릭터 소개용 명함을 만든다. 누끼형 `name_card.py`와 달리 **배경이 있는 차분 컷을 그대로** 쓴다. 인물을 확대해 오른쪽에 두고, 왼쪽을 어둡게 페이드시켜 그 위에 글자를 얹는다. 차분 컷에 장소 배경이 이미 들어가 있어 누끼를 뜨면 오히려 정보가 줄어들 때 쓴다.
+
+```bash
+uv run tools/images/name_card_cinematic.py <작품>/img \
+  --meta cards.json --out <작품>/img/명함 [--overwrite]
+```
+
+`cards.json` 은 JSON 배열이다. `name`·`source`·`affiliation`·`ability`는 필수, `ability_label`(기본 `이능`)·`roman`·`accent`·`id`는 선택이다.
+
+```json
+[{"name": "강연", "source": "강연/차분.png", "affiliation": "하운드 · 길드장",
+  "ability": "마킹", "roman": "KANG YEON", "accent": "#E0304A"}]
+```
+
+- **카드에는 소속·이름·영문 이름·이능만 넣는다.** 대사, 성격 설명, 작품 제목은 넣지 않는다. 대사는 카드를 읽는 흐름을 끊고, 제목은 가제가 바뀌면 카드를 전부 다시 만들어야 한다.
+- **스포일러는 표면 정보로만 적는다.** 정체를 숨긴 인물은 작중 공개 신분(`무소속 · 민간인`, `소속 불명`, 이능 `미등록`)으로 적는다. `숨긴 것` 항목은 카드에 옮기지 않는다.
+- 신격이나 이능 체계 밖 존재는 `ability_label`을 `권능` 등으로 바꾼다. 소속은 `○○의 여신`처럼 짧게 쓴다. `원초 여신` 같은 조어 직함은 어색하게 읽혀 반려된 적이 있다.
+- `accent`는 소속별 시각 언어 색을 쓴다. 같은 소속은 같은 색이고, 무소속은 인물마다 한 색을 준다. 색은 얇은 선, 모서리 표시, 영문 이름, 왼쪽 글로우에만 쓴다. 굵은 색 바나 채운 면으로 쓰면 유치해 보인다.
+- 인물 중심은 x=800에 오고, 페이드는 x=820에서 투명도 0이 되므로 얼굴에는 레이어가 닿지 않는다. `source` 컷의 인물이 화면 중앙에 있어야 이 좌표가 맞는다. 인물이 한쪽으로 치우친 컷은 차분 컷을 다시 뽑거나 다른 컷을 쓴다.
+- 서체: 이름은 Noto Serif KR Black, 영문 이름은 Cinzel Bold(자간 7), 소속과 라벨은 IBM Plex Sans KR이다. 모두 OFL 라이선스이고, 첫 실행 때 `~/.cache/crack-story-fonts`로 내려받는다.
+- 다 만든 뒤 전체를 한 장에 모아 보고, 이름 길이(2~3자와 4자 이상)와 밝은 배경 컷에서 글자가 읽히는지 확인한다.
 
 ---
 
