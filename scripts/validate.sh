@@ -21,6 +21,7 @@ if [ -f "$PROJ/build/integrated-prompt-safe.md" ]; then
   run "기호 정의" python3 "$C/check_symbols.py" \
         "$PROJ/build/integrated-prompt-safe.md" "$PROJ/build/integrated-prompt-unsafe.md"
   run "키워드북 항목 한도" python3 "$C/check_keyword_book.py" "$PROJ"
+  run "이미지 URL"       python3 "$C/check_image_urls.py" "$PROJ"
 fi
 
 echo

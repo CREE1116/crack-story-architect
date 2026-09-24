@@ -6,8 +6,8 @@
 
 | 파일 | 용도 | 상한 |
 |---|---|---|
-| `story-description.md` | 크랙 상세설명란 (마크다운 3대 블록) | — |
-| `summary-comment.md` | 첫 고정 댓글 (플레인 텍스트 4대 블록) | — |
+| `story-description.md` | 크랙 상세설명란 (배너·사이트 링크·이미지 자산 표·단축어) | — |
+| `summary-comment.md` | 첫 고정 댓글 (식별번호 명부·이미지 양식/코드·상태창 범례·시작 팁) | — |
 | `play-guide.md` | [시작 설정] 탭 플레이어 안내문 | ≤ 500자 |
 | `recommended-replies.md` | 세트 공통 첫 추천 답변 3종 (`---` 구분) | 항목당 ≤ 30자 권장 |
 | `characters.json` | NovelAI 가중치 베이스 프롬프트 + UC | — |

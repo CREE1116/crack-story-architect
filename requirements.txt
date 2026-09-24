@@ -3,3 +3,8 @@
 Pillow>=10.0
 numpy>=1.24
 scipy>=1.11
+# 선택: make_cover.py 누끼(--direct 없이 쓸 때) / --vector
+# rembg[cpu]
+# vtracer
+# 선택: tools/sync/crack_sync.py (별도 venv 권장, tools/sync/README.md)
+# playwright

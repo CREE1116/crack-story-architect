@@ -13,4 +13,7 @@ python3 tools/images/compose_scene.py --demo
 echo -e "\n=== 3. Crop Backgrounds Unit Tests ==="
 python3 -m unittest discover -s tools/images/tests -v
 
+echo -e "\n=== 4. Checker Unit Tests ==="
+python3 -m unittest discover -s scripts/checks/tests -v
+
 echo -e "\n=== All Tool Tests Passed Successfully ==="

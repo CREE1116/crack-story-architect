@@ -160,3 +160,28 @@ python3 tools/images/crop_backgrounds.py --help
 기본 배지를 빼려면 `--no-badge`, 글꼴 지정은 `--font`, 출력명 지정은 `--naming '{code}_{name}'`. 기존 출력은 `--overwrite` 없이는 변경하지 않는다. 원본 매칭이 모호하면 실패하며 명시적 `source`로 해결한다.
 
 검증: `python3 -m unittest discover -s tools/images/tests -v`.
+
+---
+
+## 7. Cloudflare Pages 번들 배포 (`pages_bundle.py`)
+
+한글 원본 파일명을 코드명(`<번호>/s00`, `s01~`, `a01~`, `bg/bgNN`, 몬스터 묶음)으로 복사해 사이트·배너와 함께 한 Pages 프로젝트에 올린다. 원본은 그대로 둔다.
+
+```bash
+python3 pages_bundle.py build  --config <작품>/build/assets/pages-bundle.json
+python3 pages_bundle.py deploy --config <작품>/build/assets/pages-bundle.json --project <이름>
+python3 pages_bundle.py verify --config <작품>/build/assets/pages-bundle.json   # 전 파일 HEAD 검사
+```
+
+설정 예시와 함정(404.html, HEAD, 프로젝트 이름)은 `references/hosting-showcase-and-banner.md` §6.
+
+## 8. 표지·배너 (`make_cover.py`, `glitch.py`)
+
+```bash
+pip install "rembg[cpu]"   # 누끼 (--direct 면 불필요)
+python3 make_cover.py 원본.png --out out/cover  --title "작품명" --line1 "…" --line2 "…"
+python3 make_cover.py 원본.png --out out/banner --kind banner --title "작품명" --direct --dpr 2
+python3 glitch.py out/cover/cover.png out/cover/glitch.png --level 2 --protect 300:640
+```
+
+Chrome/Chromium 헤드리스로 렌더한다(`CHROME_PATH`). 폰트는 `fonts/README.md`.

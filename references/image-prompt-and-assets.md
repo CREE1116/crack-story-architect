@@ -16,6 +16,9 @@
 | **`compose_character.py`** | 캐릭터 외형 태그 검증 & `characters.json` 컴파일러 | `python3 tools/images/compose_character.py --parse-md characters.md` |
 | **`deploy.py`** | WebP 변환, 에셋 검사, 웹 템플릿 생성, GitHub+jsDelivr 이미지 배포 | `python3 tools/images/deploy.py --convert-webp --root deploy/` |
 | **`name_card_cinematic.py`** | **시네마틱 명함** (배경 포함 차분 컷 + 소속·이름·영문 이름·이능 조판, 1200x600) | `uv run tools/images/name_card_cinematic.py img --meta cards.json --out img/명함` |
+| **`pages_bundle.py`** | **Cloudflare Pages 번들·배포·전수 검증** (한글 파일명 → s00/s01/a01/bg 코드, 매핑표, 404.html, HEAD 검증) | `python3 tools/images/pages_bundle.py deploy --config build/assets/pages-bundle.json --project <이름>` |
+| **`make_cover.py`** | **표지(1080x1620)·배너(1200x400) 합성** (isnet-anime 누끼 또는 `--direct`, 제목·CTA·장식, Chrome 렌더) | `python3 tools/images/make_cover.py 원본.png --out output/banner --kind banner --title "작품명" --direct --dpr 2` |
+| **`glitch.py`** | 완성 표지·배너 글리치 후처리 (RGB 분리·슬라이스·틴트 블록, 얼굴 띠 보호) | `python3 tools/images/glitch.py cover.png out.png --level 2 --protect 300:640` |
 
 ---
 
@@ -212,18 +215,52 @@ black tactical turtleneck, military jacket, cargo pants, combat boots, katana on
 
 ---
 
-## 5. 프롬프트 내 이미지 호출 및 CDN 연동
+## 5. 이미지 코드 규약과 프롬프트 출력 규칙
 
-크랙 시스템 프롬프트 및 키워드북에서 이미지를 호출할 때는 아래 서식을 준수합니다:
+### ① 코드 규약 (배포 전 반드시 코드명으로 바꾼다)
+
+한글 파일명(`공포_겁먹음.webp`)을 그대로 URL 에 쓰지 않는다. 모델이 한글 경로를 틀리게 쓰고, 프롬프트 글자 수도 잡아먹는다. 원본은 그대로 두고 `pages_bundle.py` 가 배포 폴더에 코드명으로 복사한다.
+
+| 경로 | 뜻 |
+|---|---|
+| `<식별번호>/s00.webp` | 명함 (첫 등장) |
+| `<식별번호>/s01~.webp` | 전연령 감정·상황 컷. 전 인물 공통 순서 |
+| `<식별번호>/a01~.webp` | 성인 컷 (19+ 판에서만 호출) |
+| `bg/bgNN.webp` | 배경 |
+| `<묶음>/rNNe.webp`, `rNNb.webp` | 몬스터·이벤트 묶음 (예: 출현 e / 공격 b) |
+
+- **식별번호 = 프롬프트 명부 순서.** 명부 줄 앞에 `▶01이름` 처럼 번호를 박아 모델이 번호를 추측하지 않게 한다. 숨은 인물(반전용)도 명부 뒤쪽 번호를 받는다.
+- **코드 순서는 전 인물 공통.** 인물마다 가진 컷이 다르면(예: 한 명만 전투2) `aliases` 로 같은 코드에 묶고, 아예 없는 컷은 프롬프트에 예외로 적는다("15는 s11까지").
+- 성인 컷 중 **노출이 있는 컷은 s 가 아니라 a** 로 분류한다. 파일명(예: '유혹')만 보고 판단하지 말고 실제 이미지를 확인한다.
+- 원본 폴더를 macOS 에서 읽으면 파일명이 NFD 로 온다. 비교는 NFC 정규화 후에 한다(`pages_bundle.py` 가 처리).
+
+### ② 통합 프롬프트 출력 규칙 (압축형 템플릿)
 
 ```markdown
-# 이미지 출력 규약
--인물 이미지: ![](https://CDN도메인/인물슬러그/상황슬러그.webp)
- (매 응답마다 개입하는 인물의 첫 대사/행동 시 및 감정/상태 변경 시 必출력)
--배경 이미지: ![](https://CDN도메인/scene/배경코드.webp)
- (새로운 장소로 이동하거나 구역 진입 시 1회 출력)
+# N. 이미지 출력(必)
+- {IMG}=https://<프로젝트>.pages.dev｜번호=▶이름 앞 2자리｜무명·ⓤ×.
+- 장소 진입時 본문 첫 줄 `![배경]({IMG}/bg/bgNN.webp)`: 01로비 02측정실 … (짧은 장소명)
+- ⓒ 대사마다 직전 `![이름]({IMG}/번호/코드.webp)`. 첫 등장=s00(명함),이후=그 대사 감정: s01차분 s02호감 … (예외 인물의 보유 범위). 동일 코드 연속×.
+- 몬스터 첫 출현 `![이름]({IMG}/ray/rNNe.webp)`·첫 공격 rNNb(NN=§N 순번).
 ```
+
+- 7K 예산이 모자라면 **성인 a 코드표는 🔞 신호로 켜지는 키워드북 항목**(성애 연출)에 합친다. 🔞 는 성애 장면에서만 켜지므로 그때만 필요한 정보와 수명이 같다. 단, 키워드북 20항목 상한 때문에 별도 항목을 늘리지 말고 기존 🔞 항목에 합친다.
+- 몬스터 번호는 세계관 섹션의 개체 나열 순서에 그대로 박는다(`D 01크롤러·02러너…`). 따로 범례를 두지 않아도 된다.
+
+### ③ 명함이 이름을 드러내는 문제
+
+명함(s00)에는 이름이 조판되어 있다. **플레이어가 아직 이름을 모르는 인물**(정체불명 조력자 등)은 첫 등장에도 명함을 쓰면 안 된다.
+
+- 해당 시작 세트 start-prompt 에 "이름 밝히기 전 명함(s00) 禁·alt 는 공개 호칭·감정 코드만" 을 적는다.
+- 재등장 트리거가 있는 키워드북 항목에도 같은 문구를 넣는다. 인물 항목은 `**이름**|` 발화 표기로 켜지는데, 이름을 모르는 동안에는 공개 호칭으로 불려 그 항목이 안 켜지기 때문이다.
+
+### ④ 프롤로그·시작 상황에 이미지 넣기
+
+- 프롤로그는 사람이 쓴 원고라 이미지를 직접 박는다. 맨 위에 배경, 장면이 바뀌는 문단 앞에 새 배경, 이름 있는 인물 대사 바로 앞에 인물 컷.
+- 이름을 가린 채 등장하는 인물(예: "짐벌 든 신인")도 프롤로그에서는 alt 를 그 호칭으로 두고 얼굴 컷을 먼저 보여줄 수 있다. 이 경우 start-prompt 에 "정식 첫 대사 직전 s00" 을 적어 명함이 뒤에 한 번 나오게 한다.
+- start-prompt 에는 첫 턴의 이미지 지시(유지할 배경, 이동 시 바꿀 배경, 첫 등장 인물 명함, 몬스터 컷)를 한 줄로 둔다.
+- 넣은 URL 은 `check_image_urls.py` 가 배포 목록과 대조한다.
 
 ## 6. 호스팅·소개 사이트·배너로 이어가기
 
-[hosting-showcase-and-banner.md](hosting-showcase-and-banner.md)를 읽는다. `deploy.py --convert-webp`는 PNG/JPEG 원본을 보존하고 기존 WebP와 충돌하면 중단한다. Cloudflare Pages 배포는 별도이며, `--scaffold --asset-gallery`로 만드는 범용 갤러리는 공개 온보딩 사이트가 아니다.
+[hosting-showcase-and-banner.md](hosting-showcase-and-banner.md)를 읽는다. Cloudflare Pages 는 `pages_bundle.py`(§6), GitHub+jsDelivr 는 `deploy.py` 를 쓴다. `deploy.py --convert-webp`는 PNG/JPEG 원본을 보존하고 기존 WebP와 충돌하면 중단한다. `--scaffold --asset-gallery`로 만드는 범용 갤러리는 공개 온보딩 사이트가 아니다.

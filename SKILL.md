@@ -21,7 +21,7 @@ description: Design, compile, or audit production-grade Crack interactive story 
 [Phase 2. 프롬프트 컴파일 (Compiling)] build/* + start-sets/* (7K / 1K / 400자 엄수)
        ↓ 전보체 명부 기호학, 3단 파싱, 샌드위치 하네스, 2대 키워드북, 다중 시작 세트
 [Phase 3. 파생 에셋 생성 (Derived Assets)] build/assets/*   (크랙 웹 등록 및 온보딩)
-         단부루 태그 위키 검증 프롬프트 시트, 상세설명(3대 블록), 고정 댓글(4대 블록), 플레이 팁
+         단부루 태그 위키 검증 프롬프트 시트, 상세설명(배너·자산표·단축어), 고정 댓글(명부·이미지 코드·상태창 범례), Pages 배포
 ```
 
 ---
@@ -49,8 +49,8 @@ description: Design, compile, or audit production-grade Crack interactive story 
 7. **다중 시작 세트(2~3 루트) & 키워드북 2대 축**:
    - 단일 시작 강제를 탈피하여 2~3개의 다중 시작 세트(`01_default`, `02_alternate`, `03_crisis`)를 표준으로 구성한다.
    - 키워드북은 **[설정 압축형]**(인물/지리)과 **[문체 조절형]**(전투/스킨십 톤)으로 분리하며, `.` 상시 트리거 핵을 배제한다.
-8. **크랙 파생 에셋 폴더(`build/assets/`) 및 정보 한도 준수**:
-   - 상세설명(마크다운 3대 블록)과 첫 고정 댓글(플레인 텍스트 4대 블록)을 엄격히 분리한다.
+8. **크랙 파생 에셋 폴더(`build/assets/`) 및 정보 한도 준수** (키워드북은 SAFE·UNSAFE 각각 **20항목 상한**, 떡밥 단계의 발동 조건은 그보다 먼저 켜지는 곳에):
+   - 상세설명(마크다운: 배너·사이트 링크·이미지 자산 표·단축어)과 첫 고정 댓글(평문: 식별번호 명부·이미지 출력 양식과 코드·상태창 범례)을 엄격히 분리한다. 상세설명에 세계관 설명을 쓰지 않고, 제작자 코멘트는 작성자가 쓴다.
    - 비밀·트라우마 스포일러를 차단하고 Day 1 유저 정보 한도 안에서 4대 플레이 팁(동료/탐색/자원/자유도)으로 치환한다.
    - `tools/images/search_tag.py` 단부루 위키를 검색해 검증된 공식 태그로 비주얼 에셋 시트를 완성한다.
 
@@ -67,10 +67,11 @@ description: Design, compile, or audit production-grade Crack interactive story 
 | **Phase 2** | **키워드북 컴파일 / 슬롯 관리** | [keyword-book-guide.md](references/keyword-book-guide.md) | 설정 압축형 + 문체 조절형 템플릿, 부분문자열 충돌 방지, 1~5개 키워드 룰, 3슬롯 예산 관리, `.` 핵 배제 |
 | **Phase 2** | **서사 속도 / NPC 능동성 / PC 주권** | [narrative-and-agency.md](references/narrative-and-agency.md) | PC 주권, 간접 인용, 비피학적 현실저항 가드, 발화자 1~3명 상한, 시간 Desync 방어, HUD 작업 기억 루프 |
 | **Phase 2** | **다중 시작 세트 / 프롤로그 / 오프닝** | [openings-and-start-sets.md](references/openings-and-start-sets.md) | 다중 시작 세트(2~3개 루트) 표준 규약, 7단 줌인 프롤로그, 4단 핫스타트 오프닝, 세트별 추천 답변 3종 결속 |
-| **Phase 3** | **크랙 파생 에셋 / 쇼케이스 / 플레이 팁** | [derived-assets-and-showcase.md](references/derived-assets-and-showcase.md) | `build/assets/` 7대 산출물 규약, 상세설명 3대 블록(마크다운), 고정 댓글 4대 블록(텍스트), 30자 후크, 4대 플레이 팁 치환 |
-| **Phase 3** | **단부루 태그 위키 / 캐릭터·배경 CG** | [image-prompt-and-assets.md](references/image-prompt-and-assets.md) | `search_tag.py`(태그 검색), `compose_scene.py`(배경 컴파일), `crop_backgrounds.py`(1024x400 크롭), `name_card_cinematic.py`(시네마틱 명함), 태그 가감(+a/-소거) 원칙, 캐릭터·배경 이미지 프롬프트 및 CDN 규약 |
+| **Phase 3** | **크랙 파생 에셋 / 쇼케이스 / 플레이 팁** | [derived-assets-and-showcase.md](references/derived-assets-and-showcase.md) | `build/assets/` 산출물 규약, 상세설명(배너·자산표·단축어), 고정 댓글(식별번호·이미지 양식/코드·상태창 범례), 30자 후크, 4대 플레이 팁 치환 |
+| **Phase 3** | **단부루 태그 위키 / 캐릭터·배경 CG** | [image-prompt-and-assets.md](references/image-prompt-and-assets.md) | `search_tag.py`(태그 검색), `compose_scene.py`(배경 컴파일), `crop_backgrounds.py`(1024x400 크롭), `name_card_cinematic.py`(시네마틱 명함), 태그 가감 원칙, **이미지 코드 규약(s00/s01~/a01~/bg)·압축 출력 규칙·명함 이름 노출·프롤로그 이미지 배치** |
 | **Phase 3** | **작품 연장형 사이트 설계 / 공개 정보 경계** | [immersive-showcase-design.md](references/immersive-showcase-design.md) | 네 참고 사이트 기반 프리셋, 기록자·시점·열람 권한, 관측·소문·비밀 분리, 사이트에서 플레이로 이어지는 설계 양식, HTML/CSS 템플릿 3종 |
-| **Phase 3** | **이미지 호스팅 / 소개 사이트 / 배너** | [hosting-showcase-and-banner.md](references/hosting-showcase-and-banner.md) | 공개 파일 계약, 기존 배포 도구 한계, 반응형 소개·갤러리, 배너 제목·구도, 배포 및 링크 검증 |
+| **Phase 3** | **이미지 호스팅 / 소개 사이트 / 배너** | [hosting-showcase-and-banner.md](references/hosting-showcase-and-banner.md) | 공개 파일 계약, `pages_bundle.py`(코드명 번들·Pages 배포·HEAD 전수 검증·404 함정), `make_cover.py`·`glitch.py`(표지·배너), 배너 제목·구도 |
+| **Phase 3** | **크랙 스튜디오 입력·임시저장** | [tools/sync/README.md](tools/sync/README.md) | `crack_sync.py` 헤드리스 자동 주입, storyId 재주입, 표지 지정, 제목 접미사·20항목 상한 등 함정 |
 | **Common** | **플랫폼 규격 / 글자 수 / 단축어 / 검증** | [platform-spec-and-lint.md](references/platform-spec-and-lint.md) | 7K/1K/400자 규격, UTF-16 측정법, 비가시적 조향 주석, 단축어 6대 표준 레시피, 빌드 체크리스트 |
 
 ---
@@ -97,8 +98,8 @@ description: Design, compile, or audit production-grade Crack interactive story 
     ├── prologue.md                # 기본 시작 세트 사본 (≤ 1,000자, 단일 세트 뷰어 호환)
     ├── start-prompt.md            # 기본 시작 세트 사본 (≤ 1,000자, 단일 세트 뷰어 호환)
     └── assets/                    # 🌟 [Phase 3 파생 에셋 공식 디렉토리]
-        ├── story-description.md   # 크랙 상세설명란 (마크다운 3대 블록: 배너/통계표, 단축어, 코멘트)
-        ├── summary-comment.md     # 크랙 첫 고정 댓글 (플레인 텍스트 4대 블록: 인물소개, CG안내, 세계관, 등급)
+        ├── story-description.md   # 크랙 상세설명란 (마크다운: 배너·사이트 링크·이미지 자산 표·단축어)
+        ├── summary-comment.md     # 크랙 첫 고정 댓글 (평문: 식별번호 명부·이미지 양식/코드·상태창 범례·시작 팁)
         ├── play-guide.md          # 크랙 [시작 설정] 탭 플레이어 안내문
         ├── recommended-replies.md # 세트 공통 첫 추천 답변 3종 (--- 구분)
         ├── build-stamp.json       # 컴파일 시점 소스 해시 기록
@@ -134,7 +135,8 @@ python3 "$S"/scripts/checks/check_freshness.py <project> --stamp   # 컴파일 �
 | `check_freshness.py` | 원본을 고치고 재컴파일을 잊은 상태. 바뀐 섹션 → 다시 볼 산출물까지 지목 |
 | `check_project_layout.py` | 정본 2개 / `build/` 산출물 6개 규약 |
 | `check_build.py` | 7K·1K 한도, SAFE↔UNSAFE 섹션 제목 일치, 우회 문구 혼입 |
-| `check_keyword_book.py` | 항목당 UTF-16 400자, 키워드 1~5개, `.` 상시 트리거 핵, 단축어 슬래시·한도 |
+| `check_keyword_book.py` | 항목당 UTF-16 400자, 키워드 1~5개, **항목 수 20개 상한**, `.` 상시 트리거 핵, 단축어 슬래시·한도, 도달 불가 키워드(WARN) |
+| `check_image_urls.py` | 프롤로그·시작 상황·상세설명·댓글의 이미지 URL 이 `image-codes.json` 배포 목록에 있는지 |
 | `check_symbols.py` | 정의 없이 쓰인 기호·이모지, 범례보다 먼저 등장한 기호 |
 | `check_image_assets.py` | 명부↔이미지 슬러그 불일치, 시드 중복, 선두 태그 충돌 |
 | `check_showcase.py` | 공개정보 장부 필수값, 역할·시작 장소·상황·첫 행동, 사이트↔정본/시작세트 신선도 |
@@ -156,7 +158,8 @@ python3 "$S"/scripts/checks/check_freshness.py <project> --stamp   # 컴파일 �
 | `build/assets/` 규약 | `$S/templates/build-assets-contract.md` |
 | **완성된 참조 프로젝트** | `$S/examples/apocalypse/` — 정본부터 통합 프롬프트·키워드북·파생 에셋까지 전부 채워져 있고 CI가 검증한다 |
 | 바로 사용하는 사이트 템플릿 | `$S/templates/showcase-sites/` — 전술 단말기·길드 게시판·기록관 HTML/CSS 및 디자인 지침 |
-| 이미지 툴체인 | `$S/tools/images/` |
+| 이미지 툴체인 | `$S/tools/images/` (Pages 번들: `pages_bundle.py`, 표지·배너: `make_cover.py`) |
+| 크랙 자동 입력 | `$S/tools/sync/crack_sync.py` |
 | 레퍼런스 | `$S/references/` |
 
 새 프로젝트는 빈 양식을 유저 작업 디렉터리로 복사해서 시작한다:

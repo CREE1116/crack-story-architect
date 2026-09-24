@@ -229,7 +229,16 @@ python3 tools/images/compose_character.py \
 
 # 5. WebP 일괄 압축 및 에셋 무결성 검사
 python3 tools/images/deploy.py --convert-webp --root deploy/
+
+# 6. 코드명 번들 → Cloudflare Pages 배포 → 전수 HEAD 검증
+python3 tools/images/pages_bundle.py deploy --config <작품>/build/assets/pages-bundle.json --project <이름>
+python3 tools/images/pages_bundle.py verify --config <작품>/build/assets/pages-bundle.json
+
+# 7. 표지(1080x1620)·배너(1200x400) 합성
+python3 tools/images/make_cover.py 원본.png --out output/banner --kind banner --title "작품명" --direct --dpr 2
 ```
+
+크랙 스튜디오 자동 입력·임시저장: `tools/sync/crack_sync.py` ([tools/sync/README.md](tools/sync/README.md)).
 
 툴 자체 테스트: `./scripts/test_tools.sh`
 
@@ -277,8 +286,9 @@ crack-story-architect/
 │   ├── install.sh              # 에이전트별 설치·등록
 │   ├── validate.sh             # 전체 규격 검사 러너
 │   ├── test_tools.sh           # 이미지 툴 테스트
-│   └── checks/                 # 검사기 8종
-├── tools/images/               # 태그 검색·배경 컴파일·크롭·배포
+│   └── checks/                 # 검사기 9종
+├── tools/images/               # 태그 검색·배경 컴파일·크롭·Pages 번들·표지/배너
+├── tools/sync/                 # 크랙 스튜디오 자동 입력 (Playwright)
 └── .claude-plugin/             # plugin.json / marketplace.json
 ```
 

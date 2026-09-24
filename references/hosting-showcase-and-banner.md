@@ -49,7 +49,7 @@ python3 "$S/tools/images/deploy.py" --check --config "$P/build/assets/prompts.js
 - **스캐폴드**: `--scaffold`는 실제 슬러그 기준 폴더와 배치표만 만든다. 기존 생성 파일을 덮어쓰지 않는다. 제작용 범용 갤러리가 필요한 경우에만 `--asset-gallery`를 함께 쓴다.
 - **범용 갤러리 한계**: `--asset-gallery`는 실제 존재하는 파일과 `prompts.json`의 슬러그·표시 메타데이터만 연결한다. 그래도 이 데이터는 공개 허가를 뜻하지 않는다. 공개 온보딩 사이트는 `showcase-brief.md`의 공개 장부에서 별도로 선택한다.
 - **검사 한계**: `--check`는 예상 밖 WebP와 과대 파일 등을 검사하지만 일부 조합 누락은 실패로 처리하지 않는다. 공개 목록의 파일 존재·디코딩·링크를 별도로 검사한다. `banner.webp`와 `thumbnail.webp`는 런타임 축이 아니므로 CG 검사 루트 밖에 둔다.
-- **배포 한계**: `deploy.py`의 기본 실행은 Cloudflare Pages 배포가 아니라 GitHub+jsDelivr 이미지 배포다. 선택된 이미지 파일만 갱신하고 다른 원격 파일은 보존하며 강제 푸시하지 않는다. `--dry-run`은 원격 조회 없이 로컬 배포 계획만 출력한다. 사이트 HTML/CSS/JS 배포는 별도다.
+- **배포 한계**: `deploy.py`의 기본 실행은 Cloudflare Pages 배포가 아니라 GitHub+jsDelivr 이미지 배포다. Cloudflare Pages 는 §6 의 `pages_bundle.py` 를 쓴다. 선택된 이미지 파일만 갱신하고 다른 원격 파일은 보존하며 강제 푸시하지 않는다. `--dry-run`은 원격 조회 없이 로컬 배포 계획만 출력한다. 사이트 HTML/CSS/JS 배포는 별도다.
 
 ## 3. 소개 사이트 구성과 문구
 
@@ -102,3 +102,62 @@ python3 "$S/tools/images/deploy.py" --check --config "$P/build/assets/prompts.js
 5. 이미지 교체 시 버전 경로 또는 일관된 revision 쿼리로 참조를 갱신하고 구버전 호출이 남는지 확인한다. 프롬프트에서 쓰는 공개 경로를 임의로 삭제하지 않는다.
 
 `release-check.md`에는 사이트/배너/CG/작품 URL, 실제 공개 파일 수와 집계 기준, 확인한 화면 크기, 깨진 링크 결과, 미확인 항목을 기록한다. 로컬 완성·배포 완료·크랙 등록 완료를 구분해 보고한다.
+
+## 6. Cloudflare Pages 번들 배포 (`pages_bundle.py`)
+
+사이트·배너·썸네일·전 이미지를 **한 Pages 프로젝트**에 올린다. 사이트 주소와 이미지 기준 주소가 같아져 프롬프트 `{IMG}` 와 상세설명 배너 링크가 한 도메인으로 통일된다.
+
+설정은 `build/assets/pages-bundle.json` 에 둔다(매핑표와 함께 공개 폴더 밖).
+
+```json
+{
+  "base_url": "https://<프로젝트>.pages.dev",
+  "out": "deploy",
+  "site": "site",
+  "files": {"banner.webp": "banner.webp", "thumbnail.webp": "썸네일.webp"},
+  "characters": {"source": "img_censored", "roster": ["유라", "백가람", "…명부 순서 그대로"]},
+  "situations": {"명함": "s00", "차분": "s01", "…": "s13", "유혹": "a01", "…": "a16"},
+  "aliases": {"전투2": "전투1", "듧박": "들박"},
+  "backgrounds": {"source": "img_censored/배경", "dest": "bg"},
+  "extras": [{"dest": "ray", "files": {"r01e": {"glob": "인카운터/*_크롤러/*_인카운터_*.png", "label": "크롤러 출현"}}}],
+  "map_out": "build/assets/image-codes.json"
+}
+```
+
+```bash
+T="$S/tools/images/pages_bundle.py"
+python3 $T build  --config build/assets/pages-bundle.json                    # deploy/ 조립만
+python3 $T deploy --config build/assets/pages-bundle.json --project <이름>    # 조립 + wrangler pages deploy
+python3 $T verify --config build/assets/pages-bundle.json                    # 배포된 전 파일 HEAD 검사
+```
+
+- **원본은 건드리지 않는다.** 코드명 파일은 `deploy/` 에만 생긴다. 이미지를 추가·교체하면 원본 폴더에 넣고 `deploy` 를 다시 돌린다. 바뀐 파일만 올라간다.
+- `situations` 에 없는 파일명, 같은 코드로 가는 파일 둘은 **조립을 멈춘다.** 오타 파일명은 `aliases` 로 흡수한다.
+- PNG/JPEG 는 WebP(q88)로 바꿔 넣는다. `extras` 의 glob 은 정확히 한 파일에 맞아야 한다.
+- **`404.html` 필수.** 없으면 Pages 가 모든 없는 경로에 `index.html` 을 200 으로 돌려준다. 이미지 코드를 잘못 적어도 200 이 나와 검사를 통과해 버린다. 도구가 자동으로 넣고, `verify` 가 없는 경로가 404 인지도 본다.
+- `verify` 는 GET 이 아니라 **HEAD** 로 확인한다. 수백 장을 GET 으로 받으면 수 분이 걸려 타임아웃 난다. 파이썬 기본 User-Agent 는 Cloudflare 가 403 으로 막으므로 도구가 UA 를 붙인다.
+- **프로젝트 이름**: `<이름>.pages.dev` 가 프롬프트에 박혀 바꾸기 어렵다. 가제인 작품명 대신 세계관 고유 명사(예: 도시·기관 이름)로 짓는다. 기존 프로젝트 목록은 `wrangler pages project list`.
+- 처음 배포는 `wrangler pages project create <이름> --production-branch main` 후 `deploy`. 500MB 대 업로드는 10분을 넘길 수 있으니 백그라운드로 돌린다.
+- 매핑표(`image-codes.json`)는 공개 폴더에 넣지 않는다. 숨은 인물의 이름이 담겨 있다.
+- 배포 뒤 `scripts/checks/check_image_urls.py` 가 프롤로그·시작 상황·상세설명·댓글에 박힌 URL 을 매핑표와 대조한다.
+
+## 7. 표지·배너 합성 (`make_cover.py`, `glitch.py`)
+
+| 산출물 | 규격 | 용도 |
+|---|---|---|
+| 표지 `cover` | 1080x1620 세로, 5MB 미만 | 크랙 대표 이미지(신규 작품 저장에 필수), 사이트 썸네일 |
+| 배너 `banner` | 1200x400 (`--dpr 2` → 2400x800) | 상세설명 상단, 클릭 시 소개 사이트 |
+
+```bash
+python3 $S/tools/images/make_cover.py 원본.png --out output/cover  --title "작품명" --line1 "로그라인 앞" --line2 "로그라인 뒤"
+python3 $S/tools/images/make_cover.py 원본.png --out output/banner --kind banner --title "작품명" --direct --dpr 2 --accent "#3CC4B6"
+python3 $S/tools/images/glitch.py output/cover/cover.png output/cover/cover-glitch.png --level 2 --protect 300:640
+```
+
+- 원본 렌더는 **순백 또는 단색 어두운 배경**으로 뽑는다. 크로마 스크린은 머리카락 가장자리에 색이 번진다. 단색 어두운 배경이면 `--direct` 로 누끼 없이 배경색 캔버스에 그대로 앉힌다(붙여 넣은 티가 안 남).
+- 누끼는 `rembg` 의 `isnet-anime` 모델(첫 실행 시 내려받음). 렌더는 Chrome/Chromium 헤드리스(`CHROME_PATH` 로 지정 가능).
+- 제목은 `--title` 텍스트 또는 `--logo` 투명 PNG. 로고를 따로 만들었다면 로고가 낫다.
+- 배너 CTA 문구 기본값은 "세계관 소개 웹사이트". 카피성 문구를 넣지 않는다.
+- 폰트는 선택 설치(`tools/images/fonts/README.md`). 없으면 시스템 폰트로 대체된다.
+- 작품명이 가제라면 표지·배너에 제목을 박을지 작성자에게 먼저 묻는다. 제목이 바뀌면 이미지를 다시 만들어야 한다.
+
