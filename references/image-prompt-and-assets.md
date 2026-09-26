@@ -162,29 +162,25 @@ black tactical turtleneck, military jacket, cargo pants, combat boots, katana on
 
 ---
 
-## 3. `build/assets/characters.json` 작성 규격 (GREED 표준)
+## 3. `build/assets/characters.json` 작성 규격
 
-이미지 생성 파이프라인의 인물 정본으로, **NovelAI 가중치 문법(`1.35::...::`)**이 적용된 완성형 베이스 프롬프트와 인물별 외형 이탈 방지 네거티브(`uc`)를 소유합니다:
+인물 외형 설계부터 컴파일까지는 [character-visual-design.md](character-visual-design.md)가 정본이다. 여기에는 형식만 요약한다.
 
 ```json
 [
-  {
-    "name": "유라",
-    "prompt": "1girl, solo, mature female, 31yo, master craftsman, 1.35::dark auburn hair, long hair, low ponytail tied with copper wire, loose sidelocks, strand of hair tucked behind ear::, 1.35::amber eyes, tareme, faint soot smudge on cheek::, 1.3::fair skin, 166cm, slender, lean arms, small breasts, narrow waist, long legs::, 1.35::burn scars on both hands, small cut scars on fingers::, 1.35::black turtleneck with sleeves pushed up, heat-resistant grey welding sleeve on left arm only, charcoal cargo work pants, worn dark brown leather apron with brass rivets, brown leather tool belt with wrenches, black steel-toed boots::, 1.35::long metal tool staff, amber glowing cache crystal set in the staff head, copper wiring wrapped around the grip::, welding goggles hanging around neck",
-    "uc": "loli, child, kid, chibi, super deformed, lowres, bad anatomy, bad hands, extra digits, fewer digits, worst quality, low quality, signature, watermark, very short hair, buzz cut, undercut, shaved sides, short hair, black hair, goggles on head, makeup, lipstick, jewelry, earrings, dress, skirt, cleavage, huge breasts, bright colors"
-  }
+  {"name": "민서아", "prompt": "1girl, solo, 1.3::black hair, long hair, straight hair, hime cut::, 1.3::purple eyes, tsurime, long eyelashes::, tall female, medium breasts, long legs, fur collar, long coat, turtleneck, tinted eyewear, eyewear on head, fingerless gloves, leather boots, pearl earrings, keyring, A charcoal fur-collared coat hung with a ring of old brass keys and a blueprint tube on her back.,", "uc": "loli, child, kid, chibi, lowres, bad anatomy, bad hands, worst quality, low quality, signature, watermark, ugly, deformed face, bad proportions, fat, obese, chubby, plump, saturated colors, neon colors, vivid colors, short hair, ponytail, skirt, dress, military uniform, armband"}
 ]
 ```
 
-### 📌 가중치 문법 & UC 작성 규칙
-1. **가중치 문법 (`1.35::...::`)**:
-   - `1.35::헤어 3요소::`: 헤어스타일과 색상이 다른 인물과 섞이지 않도록 최우선 락.
-   - `1.35::눈동자 + 시선::`: 동공 색상과 눈매 락.
-   - `1.3::체형 + 키::`: 체격과 키, 가슴 크기 락.
-   - `1.35::대표 복장::`: 고유 의상 락.
-   - `1.35::시그니처 무기/장비::`: 고유 소품 락.
-2. **맞춤형 네거티브 (`uc`)**:
-   - 기본 품질 가드(`lowres, bad anatomy, ...`) 뒤에 **그 인물에게 절대 나타나면 안 되는 반대 속성**을 명시합니다. (예: 흑발이면 `blonde hair`, 슬림 체형이면 `huge breasts, cleavage`, 제복이면 `dress, skirt`).
+- 키는 `name`·`prompt`·`uc` 셋, 한 줄에 한 명.
+- **300~450자.** 길면 그림체가 깨진다.
+- 가중치는 **헤어·눈 두 곳만** `1.3`.
+- 자연어는 인물당 1문장. 대문자로 시작하고 `.,`로 닫으며, 문장 안에 쉼표를 넣지 않는다.
+- 표정·배경·나이 숫자·키 cm·직업명은 넣지 않는다. 키·등신은 `characters.md`에만 적는다.
+- UC 순서: 품질·미성년 → 미형(`fat, obese` 등) → 색(`saturated colors` 등) → 세계관(`pristine clothes`) → 인물 반대 속성 → 다른 세력 표식. 표정 태그는 UC에도 넣지 않는다.
+- `scripts/checks/check_character_prompts.py`가 이 규격을 검사한다.
+
+> 이전 GREED 표준(가중치 5곳, `31yo`·`166cm` 표기, 800자 이상)은 그림체 붕괴가 확인되어 폐기했다.
 
 ---
 

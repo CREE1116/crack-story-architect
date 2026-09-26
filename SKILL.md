@@ -69,6 +69,7 @@ description: Design, compile, or audit production-grade Crack interactive story 
 | **Phase 2** | **다중 시작 세트 / 프롤로그 / 오프닝** | [openings-and-start-sets.md](references/openings-and-start-sets.md) | 다중 시작 세트(2~3개 루트) 표준 규약, 7단 줌인 프롤로그, 4단 핫스타트 오프닝, 세트별 추천 답변 3종 결속 |
 | **Phase 3** | **크랙 파생 에셋 / 쇼케이스 / 플레이 팁** | [derived-assets-and-showcase.md](references/derived-assets-and-showcase.md) | `build/assets/` 산출물 규약, 상세설명(배너·자산표·단축어), 고정 댓글(식별번호·이미지 양식/코드·상태창 범례), 30자 후크, 4대 플레이 팁 치환 |
 | **Phase 3** | **단부루 태그 위키 / 캐릭터·배경 CG** | [image-prompt-and-assets.md](references/image-prompt-and-assets.md) | `search_tag.py`(태그 검색), `compose_scene.py`(배경 컴파일), `crop_backgrounds.py`(1024x400 크롭), `name_card_cinematic.py`(시네마틱 명함), 태그 가감 원칙, **이미지 코드 규약(s00/s01~/a01~/bg)·압축 출력 규칙·명함 이름 노출·프롤로그 이미지 배치** |
+| **Phase 3** | **캐릭터 외형 디자인 / `characters.json`** | [character-visual-design.md](references/character-visual-design.md) | 캐스트 표·세력 룩(공통 표식 vs 개인 욕망), 세계 공통 팔레트·60-30-10, 단부루 검증 헤어·눈매·체형 태그 카탈로그, 미형 가드, 오해 조합, 300~450자·가중치 2곳·자연어 1문장 `.,` 컴파일 규칙, UC 6단, 정본 동기화 |
 | **Phase 3** | **작품 연장형 사이트 설계 / 공개 정보 경계** | [immersive-showcase-design.md](references/immersive-showcase-design.md) | 네 참고 사이트 기반 프리셋, 기록자·시점·열람 권한, 관측·소문·비밀 분리, 사이트에서 플레이로 이어지는 설계 양식, HTML/CSS 템플릿 3종 |
 | **Phase 3** | **이미지 호스팅 / 소개 사이트 / 배너** | [hosting-showcase-and-banner.md](references/hosting-showcase-and-banner.md) | 공개 파일 계약, `pages_bundle.py`(코드명 번들·Pages 배포·HEAD 전수 검증·404 함정), `make_cover.py`·`glitch.py`(표지·배너), 배너 제목·구도 |
 | **Phase 3** | **크랙 스튜디오 입력·임시저장** | [tools/sync/README.md](tools/sync/README.md) | `crack_sync.py` 헤드리스 자동 주입, storyId 재주입, 표지 지정, 제목 접미사·20항목 상한 등 함정 |
@@ -138,6 +139,7 @@ python3 "$S"/scripts/checks/check_freshness.py <project> --stamp   # 컴파일 �
 | `check_keyword_book.py` | 항목당 UTF-16 400자, 키워드 1~5개, **항목 수 20개 상한**, `.` 상시 트리거 핵, 단축어 슬래시·한도, 도달 불가 키워드(WARN) |
 | `check_image_urls.py` | 프롤로그·시작 상황·상세설명·댓글의 이미지 URL 이 `image-codes.json` 배포 목록에 있는지 |
 | `check_symbols.py` | 정의 없이 쓰인 기호·이모지, 범례보다 먼저 등장한 기호 |
+| `check_character_prompts.py` | `characters.json` 키·길이·가중치 짝·자연어 `.,`·표정/배경/숫자 혼입·prompt↔uc 충돌·헤어 묶음 중복 |
 | `check_image_assets.py` | 명부↔이미지 슬러그 불일치, 시드 중복, 선두 태그 충돌 |
 | `check_showcase.py` | 공개정보 장부 필수값, 역할·시작 장소·상황·첫 행동, 사이트↔정본/시작세트 신선도 |
 | `check_naming.py` | 폐기된 `char.` / `canon.` 점 표기 잔존 |

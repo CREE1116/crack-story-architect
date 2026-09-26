@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.5.0 — 2026-09-26
+
+「시청 중인 성좌」 캐릭터 외형 작업에서 반복된 실패(색 부조화, 흑발 과다, 긴 프롬프트의 그림체 붕괴, 웨이터·백화점 룩)를 지침과 검사기로 옮겼다.
+
+### 추가
+- `references/character-visual-design.md`: 캐스트 표 → 세력 룩(공통 표식 vs 개인 욕망) → 세계 공통 팔레트·60-30-10 → 헤어 → 눈매 → 체형 → 의상·소품 → 겹침 검사 → 컴파일 → UC → 정본 동기화 순서. 단부루 위키 DB로 존재를 확인한 헤어·눈매·얼굴·체형 태그 카탈로그와, 위키가 없는 흔한 표현(`low bun`, `fluffy hair`, `slender`, `hourglass figure` 등) 목록. 오해 조합 표, 검수 체크리스트.
+- `scripts/checks/check_character_prompts.py`: 키 규격, 600자 FAIL·450자 WARN, 가중치 짝·개수, 자연어 `.,` 종결과 문장 내 쉼표, 표정·배경·나이·cm 혼입, prompt↔uc 충돌, 헤어 묶음 중복, uc의 표정 태그·prompt 안 중복 태그(WARN). `validate.sh`에 연결.
+- 단위 테스트 `scripts/checks/tests/test_character_prompts.py`.
+
+### 수정
+- `references/image-prompt-and-assets.md` §3: 가중치 5곳·나이/키 숫자·장문 예시를 폐기하고 새 규격 요약으로 교체.
+- `examples/apocalypse/build/assets/characters.json`: 새 규격으로 재작성.
+- `SKILL.md`: 라우팅 맵과 검사기 표에 추가.
+
 ## 1.4.0 — 2026-09-25
 
 GREED 배포 과정에서 만든 도구와 겪은 함정을 반영했다.
