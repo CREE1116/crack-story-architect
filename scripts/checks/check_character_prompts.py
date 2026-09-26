@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""build/assets/characters.json 의 인물 베이스 프롬프트가 외형 지침을 따르는지 본다.
+"""build/assets/characters*.json 의 인물 베이스 프롬프트가 외형 지침을 따르는지 본다.
+
+characters.json 외에 characters-stars.json 같은 보조 캐스트 파일도 같은 규칙으로 본다.
 
 references/character-visual-design.md §8~9 의 기계로 잡을 수 있는 부분만 검사한다.
 색 조화·실루엣 겹침처럼 눈으로 봐야 하는 것은 잡지 못한다.
@@ -91,31 +93,35 @@ def check_one(c: dict) -> tuple[list[str], list[str]]:
 
 
 def validate(project: Path) -> bool:
-    path = project / "build/assets/characters.json"
-    if not path.exists():
-        print(f"SKIP {project}: build/assets/characters.json 없음")
+    paths = sorted((project / "build/assets").glob("characters*.json"))
+    if not paths:
+        print(f"SKIP {project}: build/assets/characters*.json 없음")
         return True
-    data = json.loads(path.read_text(encoding="utf-8"))
-    fails: list[str] = []
-    warns: list[str] = []
-    hair: dict[str, str] = {}
-    for c in data:
-        f, w = check_one(c)
-        fails += f
-        warns += w
-        groups = WEIGHT.findall(c.get("prompt", ""))
-        if groups:
-            key = ",".join(sorted(t.strip() for t in groups[0].split(",")))
-            if key in hair:
-                fails.append(f"{c.get('name')}: 헤어 묶음이 {hair[key]}와 똑같습니다")
-            hair.setdefault(key, c.get("name", "?"))
-    for w in warns:
-        print(f"WARN {w}")
-    for f in fails:
-        print(f"FAIL {f}")
-    if not fails:
-        print(f"PASS {path.relative_to(project)}: {len(data)}명")
-    return not fails
+    ok = True
+    for path in paths:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        fails: list[str] = []
+        warns: list[str] = []
+        hair: dict[str, str] = {}
+        for c in data:
+            f, w = check_one(c)
+            fails += f
+            warns += w
+            groups = WEIGHT.findall(c.get("prompt", ""))
+            if groups:
+                key = ",".join(sorted(t.strip() for t in groups[0].split(",")))
+                if key in hair:
+                    fails.append(f"{c.get('name')}: 헤어 묶음이 {hair[key]}와 똑같습니다")
+                hair.setdefault(key, c.get("name", "?"))
+        rel = path.relative_to(project)
+        for w in warns:
+            print(f"WARN {rel} {w}")
+        for f in fails:
+            print(f"FAIL {rel} {f}")
+        if not fails:
+            print(f"PASS {rel}: {len(data)}명")
+        ok = ok and not fails
+    return ok
 
 
 def main(argv: list[str]) -> int:

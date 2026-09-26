@@ -78,6 +78,17 @@ class CharacterPromptTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("헤어 묶음", out)
 
+    def test_secondary_cast_file_checked(self):
+        root = Path(tempfile.mkdtemp())
+        (root / "build/assets").mkdir(parents=True)
+        (root / "build/assets/characters.json").write_text(json.dumps([{"name": "가", "prompt": GOOD, "uc": ""}]), encoding="utf-8")
+        (root / "build/assets/characters-stars.json").write_text(json.dumps([{"name": "별", "prompt": GOOD + " smile,", "uc": ""}]), encoding="utf-8")
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            ok = cp.validate(root)
+        self.assertFalse(ok)
+        self.assertIn("characters-stars.json", buf.getvalue())
+
     def test_uc_expression_warns_only(self):
         ok, out = self.run_on([{"name": "가", "prompt": GOOD, "uc": "smile"}])
         self.assertTrue(ok, out)
