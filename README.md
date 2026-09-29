@@ -18,6 +18,8 @@
 글자 수 제한 없는 정본 두 개(`story.md`, `characters.md`)를 먼저 쓰고,
 거기서 규격에 맞는 산출물을 기계적으로 뽑아낸 뒤, 검사기로 한도 위반을 잡습니다.
 
+구상이 아직 열려 있다면 정본을 쓰기 전에 선택형 설계 단계에서 [세계관](references/worldbuilding-methods.md), [이야기·캐릭터](references/creative-methods.md), [나레이터 톤](references/narrator-tone-design.md)을 먼저 다듬을 수 있습니다. 각 방법의 [연구 근거와 적용 한계](references/design-evidence.md)를 따로 정리했습니다. 설계 단계에서는 플랫폼용 프롬프트를 만들지 않습니다.
+
 ---
 
 ## 스토리 온보딩 사이트

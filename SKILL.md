@@ -9,15 +9,16 @@ description: Design, compile, or audit production-grade Crack interactive story 
 
 ---
 
-## 🚀 3단계 파이프라인 (3-Stage Production Pipeline)
+## 🚀 선택형 설계 단계 + 3단계 제작 파이프라인
 
 > [!IMPORTANT]
-> **스토리+캐릭터를 창작하는 단계(Authoring)와, 그것을 7,000자 시스템 프롬프트로 압축 컴파일하는 단계(Compiling)는 철저히 분리되어야 합니다.**
-> 두 단계를 섞으면 인물의 심리적 깊이가 얕아지거나 프롬프트 분량이 폭발합니다.
+> **구상 설계 → 정본 작성 → 플랫폼용 컴파일을 분리합니다.** 사용자가 아이디어·세계관·인물을 함께 구상하거나 수정하고 싶다면 먼저 Phase 0에서 설계합니다. 이 단계에서 `build/` 파일을 만들거나 플랫폼 한도에 맞춰 생각을 줄이지 않습니다. 구상이 이미 확정되어 있으면 Phase 0을 건너뜁니다.
 
 ```text
-[Phase 1. 원작 창작 (Authoring)]  story.md + characters.md  (글자 수 제한 없음)
-       ↓ 인지심리학 모델, 8대 심리 슬롯, 10단계 심리 생성 루프, 하드 룰, 위협 분류학 구축
+[Phase 0. 구상 설계 (선택)]       대화·비공식 설계 메모 (플랫폼 규격 없음)
+       ↓ 세계관 설계·수정·개선, 이야기·인물, 나레이터 톤 탐색; 확정/제안/미정 구분
+[Phase 1. 정본 작성 (Authoring)]  story.md + characters.md  (글자 수 제한 없음)
+       ↓ 합의된 설계를 정본화: 인물의 선택 근거, 세계 법칙, 갈등과 사건 조건
 [Phase 2. 프롬프트 컴파일 (Compiling)] build/* + start-sets/* (7K / 1K / 400자 엄수)
        ↓ 전보체 명부 기호학, 3단 파싱, 샌드위치 하네스, 2대 키워드북, 다중 시작 세트
 [Phase 3. 파생 에셋 생성 (Derived Assets)] build/assets/*   (크랙 웹 등록 및 온보딩)
@@ -31,9 +32,9 @@ description: Design, compile, or audit production-grade Crack interactive story 
 1. **원작 창작과 프롬프트 컴파일의 철저한 분리**:
    - `story.md`와 `characters.md`는 인물의 심리적 모순과 세계의 물리적 법칙을 구축하는 **글자 수 무제한의 정본(Canon)**이다.
    - `build/`는 이를 7,000자 / 1,000자 / 400자 규격에 맞춰 기계 실행용으로 압축 컴파일한 **사본 및 파생물**이다.
-2. **인지심리학 기반 인물 설계 (3개 층위 & 8대 슬롯)**:
-   - 세계의 진실 ➔ 캐릭터의 정신 상태(Belief/Desire/Self/Memory) ➔ 관찰 가능한 행동(대사/행동/침묵) 3단 인지 모델을 따른다.
-   - 인물의 충돌하는 욕구(Competing Desires)와 역린(발작버튼), 슬로우본 트라우마 회복 곡선을 정본에 반드시 구축한다.
+2. **인물 설계 점검 틀 (3개 층위 & 8칸)**:
+   - 세계의 사실 ➔ 인물의 해석·욕구 ➔ 관찰 가능한 행동을 구분해 인과를 점검한다. 이 저장소의 8칸·10단계는 검증된 인지 모형이 아닌 창작 도구다.
+   - 충돌 욕구·취약점·느린 변화는 작품에 필요한 인물에게만 설계한다. 모든 인물에게 트라우마나 정해진 회복 단계를 강제하지 않는다.
 3. **GREED식 단일 상태창 하네스 (Info 작업 기억 루프)**:
    - 매 턴 최하단 ```Info``` 상태창(시각·위치·성장·소지·인물관계·목표·상황)으로 작업 기억을 갱신한다.
    - LLM의 내부 상태 장부가 없으므로, 직전 턴에 출력한 Info 상태창이 다음 턴의 유일한 **작업 기억(Working Memory)**이다.
@@ -62,7 +63,11 @@ description: Design, compile, or audit production-grade Crack interactive story 
 
 | 단계 | 작업 내용 | 열람할 모듈 | 모듈에 담긴 핵심 지식 |
 |:---:|---|---|---|
-| **Phase 1** | **원작 스토리·인물 심리 설계** | [authoring-story-and-characters.md](references/authoring-story-and-characters.md) | 인지심리학 모델(3층위), 8대 심리 슬롯, 10단계 인지 루프, 충돌하는 욕구, 역린/트라우마 회복 곡선, 위협 분류학, 정본 작성법 |
+| **Phase 0 (선택)** | **세계관 설계·수정·개선** | [worldbuilding-methods.md](references/worldbuilding-methods.md) | 핵심 전제에서 사회·일상·세력을 파생, 설정 변경의 연쇄 영향 추적, 문제별 개선, 정본으로 넘길 결정 구분 |
+| **Phase 0 (선택)** | **이야기·캐릭터 기획** | [creative-methods.md](references/creative-methods.md) | 짧은 구상에서 갈등·관계·인물 방향 탐색, 장면 실험, 정본 이전의 창작 대화 |
+| **Phase 0 (선택)** | **나레이터 톤·문체 설계** | [narrator-tone-design.md](references/narrator-tone-design.md) | 나레이터의 위치·지식·태도·침묵·유머, 같은 사건의 목소리 시안 비교, 장면별 일관성 |
+| **Phase 0 (근거 확인)** | **설계 방법론의 연구 근거·한계** | [design-evidence.md](references/design-evidence.md) | 원 연구의 관찰·창작 설계 추론·미검증 가설 구분, FSA의 검증 범위와 비교 실험 |
+| **Phase 1** | **스토리·인물 정본 작성** | [authoring-story-and-characters.md](references/authoring-story-and-characters.md) | 사실·인물 해석·행동 구분, 선택형 8칸·10개 질문, 변화의 근거, 세계 규칙과 사건 조건, 정본 작성법 |
 | **Phase 2** | **올인원 마스터 프롬프트 컴파일** | [master-prompt-template.md](references/master-prompt-template.md) | GREED 규격 백지 마스터 템플릿(Clean Canvas), 3단 파싱, Info 상태창 하네스, 전보체 명부 기호학, 실전 GREED 헌터 레이드 완성본 |
 | **Phase 2** | **키워드북 컴파일 / 슬롯 관리** | [keyword-book-guide.md](references/keyword-book-guide.md) | 설정 압축형 + 문체 조절형 템플릿, 부분문자열 충돌 방지, 1~5개 키워드 룰, 3슬롯 예산 관리, `.` 핵 배제 |
 | **Phase 2** | **서사 속도 / NPC 능동성 / PC 주권** | [narrative-and-agency.md](references/narrative-and-agency.md) | PC 주권, 간접 인용, 비피학적 현실저항 가드, 발화자 1~3명 상한, 시간 Desync 방어, HUD 작업 기억 루프 |
@@ -74,6 +79,11 @@ description: Design, compile, or audit production-grade Crack interactive story 
 | **Phase 3** | **이미지 호스팅 / 소개 사이트 / 배너** | [hosting-showcase-and-banner.md](references/hosting-showcase-and-banner.md) | 공개 파일 계약, `pages_bundle.py`(코드명 번들·Pages 배포·HEAD 전수 검증·404 함정), `make_cover.py`·`glitch.py`(표지·배너), 배너 제목·구도 |
 | **Phase 3** | **크랙 스튜디오 입력·임시저장** | [tools/sync/README.md](tools/sync/README.md) | `crack_sync.py` 헤드리스 자동 주입, storyId 재주입, 표지 지정, 제목 접미사·20항목 상한 등 함정 |
 | **Common** | **플랫폼 규격 / 글자 수 / 단축어 / 검증** | [platform-spec-and-lint.md](references/platform-spec-and-lint.md) | 7K/1K/400자 규격, UTF-16 측정법, 비가시적 조향 주석, 단축어 6대 표준 레시피, 빌드 체크리스트 |
+| **Common** | **단축어 설계 / 예시 변환** | [shortcut-authoring.md](references/shortcut-authoring.md) | 호출·RP 중단/재개·출력 형식·기억 경계·PC 주권 계약, 요약/OOC/스킵/SNS/엔딩 유형별 설계와 400자 압축 |
+
+### 설계와 제작의 경계
+
+Phase 0의 방법론은 **필요할 때만** 읽는다. 학술 연구를 근거로 제시할 때는 [근거 지도](references/design-evidence.md)에서 원 연구의 관찰과 창작용 추론을 구분한다. 사용자가 세계관이나 인물을 설계·수정하라고 한 작업을 곧바로 프롬프트 제작 요청으로 해석하지 않는다. 설계에서 확정된 사실만 Phase 1의 `story.md`·`characters.md`로 옮기고, 그 정본만 Phase 2·3의 제작 입력으로 쓴다. 미정·대안·실험 장면을 확정 설정이나 새 필수 슬롯으로 취급하지 않는다.
 
 ---
 
