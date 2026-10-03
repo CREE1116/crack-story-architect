@@ -260,3 +260,12 @@ black tactical turtleneck, military jacket, cargo pants, combat boots, katana on
 ## 6. 호스팅·소개 사이트·배너로 이어가기
 
 [hosting-showcase-and-banner.md](hosting-showcase-and-banner.md)를 읽는다. Cloudflare Pages 는 `pages_bundle.py`(§6), GitHub+jsDelivr 는 `deploy.py` 를 쓴다. `deploy.py --convert-webp`는 PNG/JPEG 원본을 보존하고 기존 WebP와 충돌하면 중단한다. `--scaffold --asset-gallery`로 만드는 범용 갤러리는 공개 온보딩 사이트가 아니다.
+
+## 7. 실전 함정 (NAI · NAIA, 2026-10)
+
+- **캐릭터 프롬프트에 표정·자세를 박지 않는다.** `expressionless`·`smile`·앉은 자세 문장(1.35)이 감정 프리셋을 이겨 모든 컷이 같은 얼굴·전신이 된다.
+- **NAIA는 1girl/1boy가 없는 캐릭터를 「기타」 성별로 돌리고 `other_directive/other_extra/other_uc/other_mode`만 읽는다.** 아이·괴물 캐릭터용 프리셋엔 other_* 칸 필수(없으면 감정 지시가 통째로 빠진다).
+- 단어 함정: `lime`(석회)→라임 초록, `hood+boat+sunken cheeks`→저승사자. 밝게 나오는 배경은 UC `blue sky, sunlight, flower, green theme` + `1.35::grey theme, muted color, dark::`.
+- 프리셋 밖에 남은 비공식 태그(`14th century`, `eldritch`, `fully clothed`)도 위키 DB로 걸러낸다.
+- **검수(nai-review)**: 폴더 이름이 프리셋 캐릭터 키와 같아야 매칭된다(`-`·괄호 구분). 원본 구조가 다르면 키 이름으로 하드링크 폴더를 만든다(심볼릭 링크는 경로 검사에 막힘). 재생성 프리셋 이름은 원본 파일 stem을 따르므로 NAIA의 `<작품>-preset-*.json`을 가리켜야 배경도 그쪽 것을 따른다.
+- 원본 이미지 폴더를 옮기거나 숨기기 전엔 확인한다. 「성인만 빼라」면 성인만.
