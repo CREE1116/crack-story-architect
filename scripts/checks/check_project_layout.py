@@ -54,7 +54,8 @@ def validate(root: Path, require_build: bool = True) -> bool:
     import unicodedata
     # start-sets/ 는 references/start-sets.md 가 정한 정본 위치다. 중간 산출물이
     # 아니라 작성자가 직접 쓰는 원본이므로 허용한다. build/start-sets/ 가 그 생성물이다.
-    ALLOWED_ROOT_PREFIXES = tuple(unicodedata.normalize('NFC', p) for p in ("build", "final", "image", "img", "deploy", "output", "assets", "site", "start-sets", "departments", "썸네일", "여캐", "무제"))
+    # char_chat/ 는 스토리에서 파생된 1:1 캐릭터챗들의 컬렉션 디렉터리다.
+    ALLOWED_ROOT_PREFIXES = tuple(unicodedata.normalize('NFC', p) for p in ("build", "final", "image", "img", "deploy", "output", "assets", "site", "start-sets", "departments", "char_chat", "characters", "썸네일", "여캐", "무제"))
     IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
     # 프로젝트 전용 도구 폴더와, pages-bundle.json 이 원본으로 선언한 이미지 폴더는 작업 폴더로 인정한다.
     declared = {"tools"} | bundle_sources(root)

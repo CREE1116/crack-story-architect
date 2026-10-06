@@ -40,3 +40,28 @@ $PY tools/sync/crack_sync.py sync $P --variant unsafe --headless --auto --auto-s
 | `[임시저장] 버튼 클릭 실패: Timeout` | 첫 시도가 모달에 가려진 경우. 도구가 재시도하며 `새로고침 후에도 제목이 남아 있음` 이 뜨면 저장된 것. |
 | `❌ Playwright가 설치되지 않았습니다` | 시스템 python3 가 아니라 위 venv 의 python 으로 실행. |
 | zsh 에서 `for pair in "safe ID" ...; set -- $pair` 가 안 쪼개짐 | zsh 는 기본 단어 분리를 안 한다. `bash -c '...'` 로 감싸거나 변수를 따로 둔다. |
+
+---
+
+# crack_character_sync — 크랙 캐릭터챗 자동 입력
+
+스토리에서 파생된 1:1 캐릭터챗(`char_chat/<캐릭터이름>/`)의 산출물(이름·한줄소개·인트로·예시대화·프롬프트·플레이가이드·상세설명·태그)을 실제 크랙 캐릭터 에디터에 주입하고 임시저장한다.
+
+## 사용법
+
+```bash
+CHAR=examples/apocalypse/char_chat/서린
+PY=tools/.venv-sync/bin/python
+
+# 1. 글자 수 및 항목 수 사전 검사
+$PY tools/sync/crack_character_sync.py inspect $CHAR
+
+# 2. 신규 캐릭터 생성 및 자동 임시저장
+$PY tools/sync/crack_character_sync.py sync $CHAR --headless --auto-submit
+
+# 3. 기존 캐릭터 재주입 (발급된 캐릭터 에디터 URL 사용)
+$PY tools/sync/crack_character_sync.py sync $CHAR \
+    --url "https://crack.wrtn.ai/builder/character?type=create&character=<ID>&step=profile" \
+    --headless --auto-submit
+```
+

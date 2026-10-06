@@ -167,7 +167,7 @@ def validate(build: Path) -> bool:
         stray = sorted(p.name for p in derived.iterdir()
                        if p.is_file() and not p.name.startswith(".")
                        and p.name not in known
-                       and not (p.name.startswith("preset-") and p.suffix == ".json"))
+                       and not ("preset-" in p.name and p.suffix == ".json"))
         if stray:
             print(f"FAIL {derived}: 알 수 없는 파생물: {', '.join(stray)}")
             print("     파생물은 요약 코멘트와 이미지 프롬프트만 둡니다. "

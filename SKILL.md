@@ -78,6 +78,7 @@ description: Design, compile, or audit production-grade Crack interactive story 
 | **Phase 3** | **작품 연장형 사이트 설계 / 공개 정보 경계** | [immersive-showcase-design.md](references/immersive-showcase-design.md) | 네 참고 사이트 기반 프리셋, 기록자·시점·열람 권한, 관측·소문·비밀 분리, 사이트에서 플레이로 이어지는 설계 양식, HTML/CSS 템플릿 3종 |
 | **Phase 3** | **이미지 호스팅 / 소개 사이트 / 배너** | [hosting-showcase-and-banner.md](references/hosting-showcase-and-banner.md) | 공개 파일 계약, `pages_bundle.py`(코드명 번들·Pages 배포·HEAD 전수 검증·404 함정), `make_cover.py`·`glitch.py`(표지·배너), 배너 제목·구도 |
 | **Phase 3** | **크랙 스튜디오 입력·임시저장** | [tools/sync/README.md](tools/sync/README.md) | `crack_sync.py` 헤드리스 자동 주입, storyId 재주입, 표지 지정, 제목 접미사·20항목 상한 등 함정 |
+| **Spinoff** | **1:1 캐릭터챗 파생·제작·동기화** | [character-chat-guide.md](references/character-chat-guide.md) | 스토리에서 인물 추출, 2K/500/1000/150자 규격, 인트로/예시대화(10개), `crack_character_sync.py` 자동화 |
 | **Common** | **플랫폼 규격 / 글자 수 / 단축어 / 검증** | [platform-spec-and-lint.md](references/platform-spec-and-lint.md) | 7K/1K/400자 규격, UTF-16 측정법, 비가시적 조향 주석, 단축어 6대 표준 레시피, 빌드 체크리스트 |
 | **Common** | **단축어 설계 / 예시 변환** | [shortcut-authoring.md](references/shortcut-authoring.md) | 호출·RP 중단/재개·출력 형식·기억 경계·PC 주권 계약, 요약/OOC/스킵/SNS/엔딩 유형별 설계와 400자 압축 |
 
@@ -119,6 +120,20 @@ Phase 0의 방법론은 **필요할 때만** 읽는다. 학술 연구를 근거�
         ├── prompts.json           # 기계 판독용 이미지 프롬프트 JSON
         ├── character-design.md    # 인물 시각 디자인 명세표
         └── scene-design.md        # 배경 및 장면 시각 디자인 명세표
+└── char_chat/                     # 🌟 [스토리에서 파생된 1:1 캐릭터챗 컬렉션]
+    └── <캐릭터이름>/               # 예: char_chat/서린/
+        ├── character.md           # 캐릭터 정본 발췌 (페르소나, 말투, 심리)
+        ├── dialogues.md           # 인트로(1세트) 및 예시대화(최대 10세트)
+        ├── guide.md               # 플레이가이드(≤500자) 및 캐릭터 설명(≤1000자)
+        ├── meta.yaml              # 이름, 한줄소개, 장르, 타겟, 해시태그
+        ├── assets/                # thumbnail.webp, situation.webp
+        └── build/                 # [크랙 캐릭터 에디터 자동 주입 산출물]
+            ├── prompt.md          # ≤ 2,000자 시스템 프롬프트
+            ├── play-guide.md      # ≤ 500자 플레이가이드
+            ├── character-desc.md  # ≤ 1,000자 캐릭터 설명
+            ├── intro.json         # 인트로 대화 JSON (각 ≤ 150자)
+            ├── examples.json      # 예시대화 JSON 배열 (각 ≤ 150자, 최대 10개)
+            └── meta.json          # 메타 JSON (이름/소개 ≤ 30자)
 ```
 
 ---
