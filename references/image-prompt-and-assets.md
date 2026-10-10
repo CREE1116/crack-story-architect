@@ -10,6 +10,9 @@
 
 | 도구명 | 핵심 기능 | 실행 예시 |
 |---|---|---|
+| **`matte_cutout.py`** | **정밀 누끼 매팅 & 광학 배경 합성** (BiRefNet_HR+pymatting, 잔선 억제, 보케·노출·틴트·라이트랩) | `python3 tools/images/matte_cutout.py --project .` |
+| **`sprite_touchup_editor.py`** | **웹 기반 누끼 터치업 스튜디오** (배경 위 실시간 지우개·복원 브러시, 줌·팬, 즉시 캐시 저장) | `python3 tools/images/sprite_touchup_editor.py --port 8765` |
+| **`bg_crop.py`** | **시네마틱 배경 크롭 & 타이포 배너** (1200x360 와이드, 지역·명조지명·영문 조판, 비네팅) | `python3 tools/images/bg_crop.py --src 배경 --out 배경_크롭` |
 | **`search_tag.py`** | 단부루 공식 위키 태그 검색 & 동의어/정의 확인 | `python3 tools/images/search_tag.py "smile"` |
 | **`compose_scene.py`** | **배경 프롬프트 컴파일러** (5대 앵커 조립, 인물 유출 차단, scene-design.md 생성) | `python3 tools/images/compose_scene.py --parse-story story.md` |
 | **`crop_backgrounds.py`** | **배경 크롭·리사이즈 도구** (1024x400 규격화, 배지, WebP 변환, 순서 네이밍) | `python3 tools/images/crop_backgrounds.py --src 원본 --out scene` |
@@ -124,6 +127,80 @@ uv run tools/images/name_card_cinematic.py <작품>/img \
 - 인물 중심은 x=800에 오고, 페이드는 x=820에서 투명도 0이 되므로 얼굴에는 레이어가 닿지 않는다. `source` 컷의 인물이 화면 중앙에 있어야 이 좌표가 맞는다. 인물이 한쪽으로 치우친 컷은 차분 컷을 다시 뽑거나 다른 컷을 쓴다.
 - 서체: 이름은 Noto Serif KR Black, 영문 이름은 Cinzel Bold(자간 7), 소속과 라벨은 IBM Plex Sans KR이다. 모두 OFL 라이선스이고, 첫 실행 때 `~/.cache/crack-story-fonts`로 내려받는다.
 - 다 만든 뒤 전체를 한 장에 모아 보고, 이름 길이(2~3자와 4자 이상)와 밝은 배경 컷에서 글자가 읽히는지 확인한다.
+
+---
+
+### ⑥ 정밀 누끼 매팅 및 광학 배경 합성 (`matte_cutout.py`)
+NovelAI 등에서 생성된 검정(단색) 배경 캐릭터 일러스트를 머리카락 한 올까지 완벽히 분리하고, 장면 배경과 광학적으로 합성합니다.
+
+```bash
+# 1. 프로젝트 전체 일괄 증분 빌드 (변경된 스프라이트만 자동 감지)
+python3 tools/images/matte_cutout.py --project .
+
+# 2. 특정 캐릭터만 처리 & 강제 리빌드
+python3 tools/images/matte_cutout.py --chars 서유진 한나리 --force
+
+# 3. CPU 환경 등 고속 모드 (BiRefNet_HR 고해상도 모델 생략)
+python3 tools/images/matte_cutout.py --no-hr
+
+# 4. 단일 전경(RGBA)과 배경 시네마틱 합성 CLI
+python3 tools/images/matte_cutout.py composite \
+  --fg img/.cutouts_matte_cache/서유진/미소.png \
+  --bg 배경/야외_낮.png \
+  --out img/합성_배경/야외_낮/서유진/미소.png
+```
+
+#### 🔬 누끼 및 합성 핵심 메커니즘
+1. **이중 세그멘테이션 마스크 캐싱**:
+   - `birefnet-general`과 `isnet-anime`의 합집합(`np.maximum.reduce`)으로 단일 모델의 신체 부위 누락 방지.
+2. **BiRefNet_HR-matting (2048px 고해상도 가속)**:
+   - Mac Apple Silicon의 `mps` 또는 CUDA GPU를 활용하여 2048px 해상도에서 16비트 정밀 알파 맵 추출.
+3. **Closed-form Alpha Matting (`pymatting`) & 인공지능 잔선 억제**:
+   - **AI 잔선(Stray Stroke) 억제**: LAB 색공간 거리 기반으로 인체 색상과 불일치하는 모션라인/스케치 잔선을 배경으로 강제 탈락.
+   - **백드롭 노이즈 억제**: 텔레아(Telea) 인페인팅 기반 스무스 플레이트를 추정하여 비네팅 암부 노이즈 제거.
+   - **림 글로우/스모크 억제**: 고주파 머리카락 디테일과 저주파 후광/연기를 구별하여 투명화.
+   - **드롭된 부주제 복원 (`_restore_dropped`)**: 화면 가장자리에서 들어오는 상대방의 손(쓰다듬기 등)이나 소품이 지워지는 현상 자동 복원.
+   - **잔털(Wisp) 색상 보정**: 검정 배경용으로 렌더링된 머리카락 테두리의 짙은 회색 잔털을 인접 신체 색상으로 자연스럽게 리프팅.
+4. **시네마틱 광학 배경 합성 (Composite)**:
+   - **선형 광학 디스크 보케 (`_bokeh_plate`)**: 감마 2.2 선형 색공간에서 실제 카메라 렌즈의 원형 조리개 형태(Disc Blur)로 블러링하고, 하이라이트 발광 볼(Bloom)을 부스트.
+   - **노출 보정 (Exposure Lift)**: 배경의 전체 루미넌스에 비례해 캐릭터의 암부·중간톤을 감마 리프트 (흰색은 보존).
+   - **환경색 반영 (Ambient Tint)**: 배경의 평균 색온도/컬러 캐스트를 캐릭터에 미세(10%) 주입.
+   - **라이트 랩 (Light Wrap)**: 캐릭터 실루엣 외곽에 배경 광원이 번져 들어오는 시네마틱 스크린(Screen) 블렌딩.
+
+---
+
+### ⑦ 대화형 웹 누끼 터치업 스튜디오 (`sprite_touchup_editor.py`)
+매팅 결과물에서 미세하게 남은 AI 아티팩트를 배경 위에서 직접 보며 실시간으로 브러시 수정합니다.
+
+```bash
+# 터치업 스튜디오 실행 (기본 포트: 8765)
+python3 tools/images/sprite_touchup_editor.py --project . --port 8765
+# 브라우저 열기: http://localhost:8765
+```
+
+- **실시간 지우개 (E)**: 원치 않는 AI 후광, 테두리 잔선, 의상 틈새 찌꺼기를 부드럽게 지움.
+- **원본 복원 브러시 (R)**: 매팅 과정에서 과도하게 파여나간 어깨 끈, 머리핀, 손가락 등을 원본(raw) 이미지에서 자연스럽게 스탬프 복구.
+- **배경 검사 모드**: 체크판, 순수 블랙, 순수 화이트, 프로젝트 내 실제 배경(`배경/*.png`)을 원클릭으로 전환하며 외곽선 이질감 검사.
+- **자유 네비게이션**: 마우스 우클릭 드래그(Pan), 휠 줌(Zoom), Space+좌클릭, `[` / `]` 브러시 크기 조절, `Ctrl+Z`(실행취소), `Ctrl+S`(즉시 캐시 저장).
+
+---
+
+### ⑧ 시네마틱 와이드 배경 크롭 & 타이포 배너 (`bg_crop.py`)
+게임 내 상단 배경 또는 온보딩용 와이드 배너(`1200x360`)를 생성하고, 감성적인 지역/명조지명/영문 서브타이틀 타이포그래피를 조판합니다.
+
+```bash
+# 기본 실행: '배경/' 디렉터리 내 이미지를 '배경_크롭/'으로 자동 크롭 & 배너화
+python3 tools/images/bg_crop.py --src 배경 --out 배경_크롭
+
+# 커스텀 장소 메타데이터 JSON 지정
+python3 tools/images/bg_crop.py --places places.json
+
+# 텍스트 없이 와이드 비율 크롭만 수행
+python3 tools/images/bg_crop.py --no-label
+```
+
+- **조판 규약**: 좌측 하단에 포인트 레드 바(Accent Line) + 소분류 지역 + 대형 명조체 지명(Noto Serif KR) + 트래킹 영문명(Cinzel) + 얇은 영화풍 외곽 프레임.
+- **감성 비네팅**: 텍스트 가독성을 위해 좌측 하단 영역만 부드러운 가우시안 섀도를 자동 합성.
 
 ---
 

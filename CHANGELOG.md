@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.9.0 — 2026-10-11
+
+「연애과외」 프로젝트에서 개발·검증된 정밀 스프라이트 누끼(Matte Cutout) 및 시네마틱 광학 배경 합성 파이프라인을 기본 이미지 도구로 내장했다.
+
+### 추가
+- **정밀 누끼 매팅 & 시네마틱 광학 배경 합성 (`tools/images/matte_cutout.py`)**:
+  - 이중 세그멘테이션 마스크 캐싱 (`birefnet-general` ∪ `isnet-anime`)
+  - BiRefNet_HR-matting 고해상도 가속 (2048px, Apple Silicon MPS / CUDA / CPU)
+  - Closed-form Alpha Matting (`pymatting` CF + ML): LAB 색차 AI 잔선 억제, 텔레아 백드롭 노이즈 억제, 림 글로우 억제, 프레임 경계 부주제 자동 복원(`_restore_dropped`), 잔털 체색 보정
+  - 시네마틱 광학 합성: 선형 광학 디스크 보케 블러 + 하이라이트 발광 부스트, 배경 루미넌스 비례 Exposure Lift, Ambient Tint, 실루엣 Light Wrap 스크린 블렌딩
+- **웹 기반 대화형 누끼 터치업 스튜디오 (`tools/images/sprite_touchup_editor.py`)**:
+  - 브라우저 실시간 지우개(E) / 원본 복원 브러시(R) / 배경 오버레이 검사 모드
+  - 캔버스 줌 & 팬, 단축키 지원, 캐시 파일 즉시 저장 (`.cutouts_matte_cache/`)
+- **시네마틱 배경 크롭 & 타이포 배너 (`tools/images/bg_crop.py`)**:
+  - 배경 이미지 1200x360 와이드 크롭 + 지역 태그·명조 지명·영문 서브타이틀·비네팅 렌더링
+- **문서 및 가이드 보강**:
+  - `SKILL.md`, `references/image-prompt-and-assets.md`, `tools/images/README.md`에 파이프라인 지침 및 CLI 예시 추가
+  - `requirements.txt`에 누끼/합성 의존성 명시
+
+## 1.8.0 — 2026-10-07
+
+크랙(Crack) 1:1 캐릭터챗 전용 규격 설계 지침 및 Playwright 기반 브라우저 자동 주입 도구를 완비했다.
+
+### 추가
+- `references/character-chat-guide.md`: 캐릭터챗 프로필, 2,000자 시스템 프롬프트, 500자 플레이가이드, 1,000자 상세설명, 500자 상황배경, 인트로/예시대화(10세트) 설계 계약
+- `scripts/derive_character_chat.py`: 스토리 정본(`story.md`, `characters.md`)에서 개별 캐릭터챗 아티팩트 자동 추출 컴파일러
+- `scripts/checks/check_character_limits.py`: 캐릭터챗 글자 수 및 발화 시퀀스 규격 정밀 린터
+- `tools/sync/crack_character_sync.py`: Playwright 기반 캐릭터 에디터 자동 주입 도구 (비가시적 시작 프롬프트, 행동지문, Combobox 장르/타겟 선택, 썸네일 업로드 크롭, 임시저장)
+
 ## 1.7.0 — 2026-10-03
 
 「죽은 역병의사의 가면을 이어받았다」(구 「재를 먹는 새」) 제작·플레이테스트에서 확인한 규칙을 옮겼다.

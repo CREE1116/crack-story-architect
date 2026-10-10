@@ -185,3 +185,52 @@ python3 glitch.py out/cover/cover.png out/cover/glitch.png --level 2 --protect 3
 ```
 
 Chrome/Chromium 헤드리스로 렌더한다(`CHROME_PATH`). 폰트는 `fonts/README.md`.
+
+---
+
+## 9. 정밀 누끼 매팅 및 시네마틱 광학 배경 합성 (`matte_cutout.py`)
+
+NovelAI 검정 배경 일러스트를 머리카락 한 올까지 정밀하게 분리하고, 실제 카메라 렌즈의 광학적 특성(보케 블러, 노출 보정, 씬 앰비언트 틴트, 라이트 랩)을 반영하여 배경과 자연스럽게 합성합니다.
+
+```bash
+# 프로젝트 전체 일괄 증분 빌드 (img/ -> img/.cutouts_matte_cache/ -> img/합성_배경/)
+python3 tools/images/matte_cutout.py --project <작품경로>
+
+# 특정 캐릭터만 지정 빌드
+python3 tools/images/matte_cutout.py --chars 서유진 한나리
+
+# 단일 전경과 배경 시네마틱 합성
+python3 tools/images/matte_cutout.py composite --fg cutout.png --bg bg.png --out comp.png
+```
+
+- **이중 세그멘테이션 마스크**: `birefnet-general` ∪ `isnet-anime`
+- **고해상도 HR 매팅 가속**: `ZhengPeng7/BiRefNet_HR-matting` (2048px, MPS/CUDA/CPU)
+- **Closed-Form Matting 후처리**: LAB 색차 기반 AI 잔선(Stray Stroke) 억제, 텔레아 인페인팅 백드롭 노이즈 억제, 림 글로우 억제, 프레임 경계 부주제 복원(`_restore_dropped`), 잔털(Wisp) 색상 체색 보정
+- **광학 배경 합성**: 감마 2.2 선형 색공간 디스크 보케 블러 + 하이라이트 발광 부스트, Exposure Lift, Ambient Tint, Distance Transform 기반 Light Wrap(스크린 블렌딩)
+
+---
+
+## 10. 웹 기반 대화형 누끼 터치업 스튜디오 (`sprite_touchup_editor.py`)
+
+배경 위에서 실시간으로 스프라이트를 확인하며 지우개 및 원본 복원 브러시로 정밀 수정합니다.
+
+```bash
+python3 tools/images/sprite_touchup_editor.py --project <작품경로> --port 8765
+# 브라우저에서 http://localhost:8765 접속
+```
+
+- **지우개 (E)**: 미세 잔선, AI 헤일로, 불필요한 장신구 제거
+- **복원 브러시 (R)**: 매팅 시 파여나간 어깨끈, 핀, 손 등을 원본(raw)에서 스탬프 복구
+- **손도구 (H / Space / 우클릭 드래그)**: 자유 캔버스 이동 및 마우스 휠 줌
+- **배경 검사 모드**: 체크판, 블랙, 화이트, 프로젝트 실제 배경 원클릭 전환
+- **단축키**: `[` / `]`(브러시 크기), `Ctrl+Z`(실행취소), `Ctrl+S`(즉시 캐시 저장)
+
+---
+
+## 11. 시네마틱 와이드 배경 크롭 & 타이포 배너 (`bg_crop.py`)
+
+배경 이미지를 상단 와이드 규격(`1200x360`)으로 크롭하고, 세련된 지역 태그 + 명조 지명 + 영문 서브타이틀 + 비네팅 + 외곽 프레임을 합성합니다.
+
+```bash
+python3 tools/images/bg_crop.py --src 배경 --out 배경_크롭 [--places places.json]
+```

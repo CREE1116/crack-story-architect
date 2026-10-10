@@ -3,8 +3,18 @@
 Pillow>=10.0
 numpy>=1.24
 scipy>=1.11
+opencv-python>=4.8.0
+
+# 정밀 누끼(matte_cutout.py) & 광학 합성 & 터치업 에디터
+# pip install rembg pymatting opencv-python
+# 고해상도 HR 매팅 가속(MPS/CUDA): pip install torch transformers
+# rembg
+# pymatting
+# torch
+# transformers
+
 # 선택: make_cover.py 누끼(--direct 없이 쓸 때) / --vector
-# rembg[cpu]
 # vtracer
 # 선택: tools/sync/crack_sync.py (별도 venv 권장, tools/sync/README.md)
 # playwright
+
